@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>便利屋むすび 案件管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f5f5}
+.app{padding:1rem;max-width:600px;margin:0 auto}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:1rem;background:#fff;padding:12px;border-radius:12px;border:0.5px solid #e0e0e0}
+.logo{width:36px;height:36px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#085041;border:0.5px solid #9FE1CB;flex-shrink:0}
+.app-title{font-size:17px;font-weight:500}
+.app-sub{font-size:12px;color:#666}
+.nav{display:flex;gap:6px;margin-bottom:1rem;border-bottom:0.5px solid #e0e0e0}
+.nav-btn{padding:8px 12px;font-size:13px;border:none;background:none;cursor:pointer;color:#666;border-bottom:2px solid transparent;margin-bottom:-1px}
+.nav-btn.active{color:#0F6E56;border-bottom-color:#0F6E56;font-weight:500}
+.page{display:none}.page.active{display:block}
+.section{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.sec-title{font-size:12px;font-weight:500;color:#666;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid #e0e0e0}
+.field{margin-bottom:10px}.field:last-child{margin-bottom:0}
+.lbl{font-size:12px;color:#666;margin-bottom:3px;display:flex;align-items:center;gap:4px}
+.req{font-size:10px;background:#FAECE7;color:#993C1D;padding:1px 5px;border-radius:4px}
+input[type=text],input[type=tel],input[type=date],input[type=number],input[type=time],select,textarea{width:100%;border:0.5px solid #ccc;border-radius:8px;padding:7px 10px;font-size:13px;color:#1a1a1a;background:#fff;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75}
+input[readonly]{background:#f5f5f5;color:#888}
+textarea{resize:vertical;min-height:60px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cb-group{display:flex;flex-wrap:wrap;gap:8px}
+.cb-item{display:flex;align-items:center;gap:5px;font-size:13px}
+.cb-item input{width:auto}
+.same-check-row{display:flex;align-items:center;gap:6px;margin-bottom:6px;font-size:13px;color:#666}
+.same-check-row input{width:auto}
+.btn-primary{width:100%;padding:10px;border-radius:8px;border:none;background:#1D9E75;color:#fff;font-size:14px;font-weight:500;cursor:pointer}
+.btn-primary:active{transform:scale(0.98)}
+.btn-sec{padding:8px 14px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:13px;cursor:pointer}
+.btn-link{width:100%;padding:10px;border-radius:8px;border:1.5px solid #1D9E75;background:#fff;color:#0F6E56;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
+.btn-link.done{border-color:#9FE1CB;color:#9FE1CB;cursor:default;pointer-events:none}
+.btn-link.blue{border-color:#185FA5;color:#185FA5}
+.btn-confirm{width:100%;padding:8px;border-radius:8px;border:none;background:#E6F1FB;color:#0C447C;font-size:13px;font-weight:500;cursor:pointer;margin-top:6px}
+.btn-row{display:flex;gap:8px;margin-top:1rem}
+.toast{display:none;border-radius:8px;padding:9px 12px;font-size:13px;margin-top:10px}
+.toast.show{display:block}
+.toast.ok{background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041}
+.toast.err{background:#FCEBEB;border:0.5px solid #F09595;color:#A32D2D}
+.toast.info{background:#E6F1FB;border:0.5px solid #85B7EB;color:#0C447C}
+.badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
+.s0{background:#F1EFE8;color:#444441}.s1{background:#E6F1FB;color:#0C447C}
+.s2{background:#FAEEDA;color:#633806}.s3{background:#EAF3DE;color:#27500A}
+.s4{background:#E1F5EE;color:#085041}.s5{background:#EEEDFE;color:#3C3489}
+.case-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:10px;padding:12px;margin-bottom:8px;cursor:pointer}
+.case-card:hover{border-color:#1D9E75}
+.case-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.case-name{font-size:14px;font-weight:500}
+.case-meta{font-size:12px;color:#666;margin-top:4px}
+.progress-bar{display:flex;gap:2px;margin-top:8px}
+.pb-step{flex:1;height:4px;border-radius:2px;background:#e0e0e0}
+.pb-step.done{background:#1D9E75}.pb-step.current{background:#EF9F27}
+.search-box{position:relative;margin-bottom:1rem}
+.search-box input{padding-left:32px;background:#fff}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;opacity:.4}
+.empty{text-align:center;padding:2rem;color:#666;font-size:13px}
+.detail-header{display:flex;align-items:center;gap:8px;margin-bottom:1rem}
+.back-btn{padding:6px 10px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:12px;cursor:pointer}
+.step-nav{display:flex;overflow-x:auto;gap:4px;margin-bottom:1rem;padding-bottom:4px}
+.step-btn{padding:6px 10px;font-size:12px;border-radius:20px;border:0.5px solid #ccc;background:#fff;color:#666;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.step-btn.active{background:#E1F5EE;border-color:#5DCAA5;color:#085041;font-weight:500}
+.step-btn.done{background:#F1EFE8;color:#444441}
+.step-page{display:none}.step-page.active{display:block}
+.info-row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:0.5px solid #e0e0e0;font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-label{color:#666;flex-shrink:0;margin-right:8px;min-width:90px}
+.info-val{text-align:right;color:#1a1a1a;word-break:break-all}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
+.stat-card{background:#f5f5f5;border-radius:8px;padding:10px;text-align:center}
+.stat-num{font-size:22px;font-weight:500}
+.stat-lbl{font-size:11px;color:#666;margin-top:2px}
+.synced-badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;background:#E1F5EE;color:#085041;padding:2px 8px;border-radius:10px;margin-left:6px}
+.company-box{background:#f5f5f5;border:0.5px solid #ccc;border-radius:8px;padding:10px 12px;margin-top:8px}
+.company-box-title{font-size:12px;color:#666;margin-bottom:6px}
+.company-row{display:flex;gap:8px;align-items:center}
+.company-row input{flex:1}
+.loading-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#1D9E75;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div style="font-size:13px;color:#666">データを読み込み中...</div>
+</div>
+
+<div class="app">
+  <div class="header">
+    <div class="logo">む</div>
+    <div>
+      <div class="app-title">便利屋むすび　案件管理</div>
+      <div class="app-sub" id="sync-status">データを読み込み中...</div>
+    </div>
+  </div>
+  <div class="nav">
+    <button class="nav-btn active" onclick="showPage('list')">案件一覧</button>
+    <button class="nav-btn" onclick="showPage('new')">新規受付</button>
+  </div>
+
+  <div id="page-list" class="page active">
+    <div id="stat-grid" class="stat-grid"></div>
+    <div class="search-box">
+      <svg class="search-icon" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/><path d="M10 10L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <input type="text" id="search-input" placeholder="お客様名・案件ID・住所で検索" oninput="renderList()">
+    </div>
+    <div id="case-list"></div>
+  </div>
+
+  <div id="page-new" class="page">
+    <div class="section">
+      <div class="sec-title">受付情報</div>
+      <div class="row2">
+        <div class="field"><div class="lbl">案件ID</div><input type="text" id="n-id" readonly></div>
+        <div class="field"><div class="lbl">受付日 <span class="req">必須</span></div><input type="date" id="n-date"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="lbl">受付方法</div>
+          <select id="n-channel"><option value="">選択</option><option>電話</option><option>LINE</option><option>紹介</option><option>チラシ</option><option>その他</option></select>
+        </div>
+        <div class="field"><div class="lbl">担当者</div><input type="text" id="n-staff" placeholder="氏名"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="sec-title">お客様情報</div>
+      <div class="row2">
+        <div class="field"><div class="lbl">お客様名 <span class="req">必須</span></div><input type="text" id="n-name" placeholder="山田 太郎"></div>
+        <div class="field"><div class="lbl">電話番号 <span class="req">必須</span></div><input type="tel" id="n-tel" placeholder="090-XXXX-XXXX"></div>
+      </div>
+      <div class="field"><div class="lbl">お客様住所</div><input type="text" id="n-customer-address" placeholder="浜松市○○区○○町（ご自宅）"></div>
+    </div>
+    <div class="section">
+      <div class="sec-title">作業場所</div>
+      <div class="field">
+        <div class="same-check-row">
+          <input type="checkbox" id="n-same-address" onchange="toggleSameAddress()">
+          <label for="n-same-address">お客様住所と同じ</label>
+        </div>
+        <input type="text" id="n-address" placeholder="浜松市○○区○○町（作業場所）">
+      </div>
+      <div class="row2">
+        <div class="field"><div class="lbl">建物種別</div>
+          <select id="n-building"><option value="">選択</option><option>一戸建て</option><option>マンション</option><option>アパート</option><option>店舗・事務所</option><option>倉庫・車庫</option><option>その他</option></select>
+        </div>
+        <div class="field"><div class="lbl">階数・間取り</div><input type="text" id="n-floor" placeholder="2階・2LDK"></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="sec-title">作業内容</div>
+      <div class="field"><div class="lbl">作業種別 <span class="req">必須</span></div>
+        <div class="cb-group">
+          <label class="cb-item"><input type="checkbox" class="n-type" value="不用品回収"> 不用品回収</label>
+          <label class="cb-item"><input type="checkbox" class="n-type" value="片づけ"> 片づけ</label>
+          <label class="cb-item"><input type="checkbox" class="n-type" value="遺品整理"> 遺品整理</label>
+          <label class="cb-item"><input type="checkbox" class="n-type" value="引越し支援"> 引越し支援</label>
+          <label class="cb-item"><input type="checkbox" class="n-type" value="その他"> その他</label>
+        </div>
+      </div>
+      <div class="field"><div class="lbl">品目・量の概要</div><textarea id="n-items" placeholder="家電2点（冷蔵庫・洗濯機）、家具3点など"></textarea></div>
+      <div class="field"><div class="lbl">特記事項</div><textarea id="n-notes" placeholder="エレベーターなし、大型家具あり など"></textarea></div>
+      <div class="row2">
+        <div class="field"><div class="lbl">事前写真</div>
+          <select id="n-photo"><option value="">選択</option><option>あり（送付済）</option><option>あり（送付待ち）</option><option>なし</option></select>
+        </div>
+        <div class="field"><div class="lbl">希望時間帯</div>
+          <select id="n-time"><option value="">選択</option><option>午前（〜12時）</option><option>午後（12時〜）</option><option>指定なし</option></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="lbl">希望日①</div><input type="date" id="n-hope1"></div>
+        <div class="field"><div class="lbl">希望日②</div><input type="date" id="n-hope2"></div>
+      </div>
+      <div class="field"><div class="lbl">担当メモ</div><textarea id="n-memo" placeholder="高齢者一人暮らし・丁寧対応希望 など"></textarea></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-sec" onclick="clearNew()">クリア</button>
+      <button class="btn-primary" onclick="saveNew()">案件を登録する</button>
+    </div>
+    <div class="toast" id="new-toast"></div>
+  </div>
+
+  <div id="page-detail" class="page">
+    <div class="detail-header">
+      <button class="back-btn" onclick="showPage('list')">← 一覧へ</button>
+      <div style="flex:1">
+        <div id="d-name" style="font-size:15px;font-weight:500"></div>
+        <div id="d-id" style="font-size:12px;color:#666"></div>
+      </div>
+      <div id="d-badge"></div>
+    </div>
+    <div class="step-nav" id="step-nav"></div>
+
+    <div id="sp-0" class="step-page active">
+      <div class="section"><div class="sec-title">受付・お客様情報</div><div id="sp0-info"></div></div>
+      <a id="btn-sheet-0" class="btn-link" target="_blank">
+        <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#0F6E56" stroke-width="1.2"/><path d="M5 6h6M5 8h6M5 10h4" stroke="#0F6E56" stroke-width="1" stroke-linecap="round"/></svg>
+        管理シートに転記する
+      </a>
+      <button id="btn-sheet-0-confirm" class="btn-confirm" onclick="confirmDone('sheet')" style="display:none">「success」と表示されたら → 転記完了にする</button>
+      <div class="toast" id="toast-sheet"></div>
+    </div>
+
+    <div id="sp-1" class="step-page">
+      <div class="section">
+        <div class="sec-title">見積もり情報</div>
+        <div class="row2">
+          <div class="field"><div class="lbl">見積もり方法</div>
+            <select id="e-method"><option value="">選択</option><option>現地見積もり</option><option>写真見積もり</option><option>電話概算</option></select>
+          </div>
+          <div class="field"><div class="lbl">見積もり日</div><input type="date" id="e-date"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><div class="lbl">見積もり時間</div><input type="time" id="e-time" value="10:00"></div>
+          <div class="field"><div class="lbl">見積もり金額（円）</div><input type="number" id="e-amount" placeholder="30000"></div>
+        </div>
+        <div class="field"><div class="lbl">内訳</div><input type="text" id="e-breakdown" placeholder="回収費・処分費など"></div>
+        <div class="field"><div class="lbl">見積もりメモ</div><textarea id="e-memo" placeholder="追加作業の可能性あり など"></textarea></div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(1)">見積もり情報を保存</button>
+      <div class="company-box">
+        <div class="company-box-title">カレンダーに登録する担当会社名を入力してください</div>
+        <div class="company-row">
+          <input type="text" id="company-estimate" placeholder="例：便利屋むすび" oninput="updateCalUrls()">
+          <a id="btn-estimate-cal" class="btn-link blue" target="_blank" style="margin-top:0;width:auto;padding:8px 12px;white-space:nowrap;flex-shrink:0">登録</a>
+        </div>
+      </div>
+      <button id="btn-estimate-cal-confirm" class="btn-confirm" onclick="confirmDone('estimateCal')" style="display:none">「calendar_success」と表示されたら → 登録完了にする</button>
+      <div class="toast" id="toast-1"></div>
+    </div>
+
+    <div id="sp-2" class="step-page">
+      <div class="section">
+        <div class="sec-title">見積もり確定</div>
+        <div class="row2">
+          <div class="field"><div class="lbl">確定金額（円）</div><input type="number" id="c-amount" placeholder="30000"></div>
+          <div class="field"><div class="lbl">確定日</div><input type="date" id="c-date"></div>
+        </div>
+        <div class="field"><div class="lbl">お客様への連絡方法</div>
+          <select id="c-contact"><option value="">選択</option><option>電話</option><option>LINE</option><option>メール</option><option>訪問</option></select>
+        </div>
+        <div class="field"><div class="lbl">特記事項</div><textarea id="c-notes" placeholder="追加オプション、値引きなど"></textarea></div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(2)">確定情報を保存</button>
+      <div class="toast" id="toast-2"></div>
+    </div>
+
+    <div id="sp-3" class="step-page">
+      <div class="section">
+        <div class="sec-title">作業日確定</div>
+        <div class="row2">
+          <div class="field"><div class="lbl">作業日 <span class="req">必須</span></div><input type="date" id="w-date"></div>
+          <div class="field"><div class="lbl">開始時間</div><input type="time" id="w-start" value="09:00"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><div class="lbl">作業員（人数）</div><input type="number" id="w-crew" placeholder="2"></div>
+          <div class="field"><div class="lbl">車両</div><input type="text" id="w-vehicle" placeholder="軽トラ1台"></div>
+        </div>
+        <div class="field"><div class="lbl">作業準備メモ</div><textarea id="w-prep" placeholder="養生シート・台車持参 など"></textarea></div>
+        <div class="field"><div class="lbl">協力会社</div><input type="text" id="w-partner" placeholder="○○さん など"></div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(3)">作業日を確定する</button>
+      <div class="company-box">
+        <div class="company-box-title">カレンダーに登録する担当会社名を入力してください</div>
+        <div class="company-row">
+          <input type="text" id="company-work" placeholder="例：便利屋むすび" oninput="updateCalUrls()">
+          <a id="btn-work-cal" class="btn-link blue" target="_blank" style="margin-top:0;width:auto;padding:8px 12px;white-space:nowrap;flex-shrink:0">登録</a>
+        </div>
+      </div>
+      <button id="btn-work-cal-confirm" class="btn-confirm" onclick="confirmDone('workCal')" style="display:none">「calendar_success」と表示されたら → 登録完了にする</button>
+      <div class="toast" id="toast-3"></div>
+    </div>
+
+    <div id="sp-4" class="step-page">
+      <div class="section">
+        <div class="sec-title">作業準備チェック</div>
+        <div class="cb-group" style="flex-direction:column;gap:10px">
+          <label class="cb-item"><input type="checkbox" class="prep-check"> お客様への前日確認連絡</label>
+          <label class="cb-item"><input type="checkbox" class="prep-check"> 車両・資材の準備確認</label>
+          <label class="cb-item"><input type="checkbox" class="prep-check"> 作業員・協力会社への連絡</label>
+          <label class="cb-item"><input type="checkbox" class="prep-check"> 現場写真（作業前）の撮影準備</label>
+          <label class="cb-item"><input type="checkbox" class="prep-check"> 処分・廃棄先の確認</label>
+        </div>
+        <div class="field" style="margin-top:10px"><div class="lbl">準備メモ</div><textarea id="prep-memo" placeholder="追加の持ち物、注意点など"></textarea></div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(4)">準備状況を保存</button>
+      <div class="toast" id="toast-4"></div>
+    </div>
+
+    <div id="sp-5" class="step-page">
+      <div class="section">
+        <div class="sec-title">作業記録</div>
+        <div class="row2">
+          <div class="field"><div class="lbl">作業開始時刻</div><input type="time" id="wk-start"></div>
+          <div class="field"><div class="lbl">作業終了時刻</div><input type="time" id="wk-end"></div>
+        </div>
+        <div class="field"><div class="lbl">作業内容（実績）</div><textarea id="wk-detail" placeholder="実際に回収した品目、作業内容を記録"></textarea></div>
+        <div class="field"><div class="lbl">追加作業・変更点</div><textarea id="wk-extra" placeholder="当日発生した追加作業や変更点"></textarea></div>
+        <div class="field"><div class="lbl">作業時の確認事項</div>
+          <div class="cb-group" style="flex-direction:column;gap:10px">
+            <label class="cb-item"><input type="checkbox" class="work-check"> 作業前写真の撮影</label>
+            <label class="cb-item"><input type="checkbox" class="work-check"> 作業後写真の撮影</label>
+            <label class="cb-item"><input type="checkbox" class="work-check"> お客様の立会い確認</label>
+            <label class="cb-item"><input type="checkbox" class="work-check"> お客様サインまたは口頭確認</label>
+          </div>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(5)">作業記録を保存</button>
+      <div class="toast" id="toast-5"></div>
+    </div>
+
+    <div id="sp-6" class="step-page">
+      <div class="section">
+        <div class="sec-title">完了報告・精算</div>
+        <div class="row2">
+          <div class="field"><div class="lbl">完了日</div><input type="date" id="done-date"></div>
+          <div class="field"><div class="lbl">最終請求金額（円）</div><input type="number" id="done-amount" placeholder="30000"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><div class="lbl">入金状況</div>
+            <select id="done-pay"><option value="">選択</option><option>当日現金</option><option>振込待ち</option><option>入金済み</option></select>
+          </div>
+          <div class="field"><div class="lbl">入金日</div><input type="date" id="done-paydate"></div>
+        </div>
+        <div class="field"><div class="lbl">完了報告メモ</div><textarea id="done-memo" placeholder="お客様の反応、次回につながる情報など"></textarea></div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(6)">完了報告を保存</button>
+      <a id="btn-done-sheet" class="btn-link" target="_blank" style="margin-top:8px">
+        <svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#0F6E56" stroke-width="1.2"/><path d="M5 6h6M5 8h6M5 10h4" stroke="#0F6E56" stroke-width="1" stroke-linecap="round"/></svg>
+        完了報告をスプレッドシートに転記する
+      </a>
+      <button id="btn-done-confirm" class="btn-confirm" onclick="confirmDone('done')" style="display:none">「success」と表示されたら → 転記完了にする</button>
+      <div class="toast" id="toast-6"></div>
+    </div>
+
+    <div id="sp-7" class="step-page">
+      <div class="section">
+        <div class="sec-title">後始末チェック</div>
+        <div class="cb-group" style="flex-direction:column;gap:10px">
+          <label class="cb-item"><input type="checkbox" class="after-check"> 廃棄物の適正処理確認</label>
+          <label class="cb-item"><input type="checkbox" class="after-check"> 車両・資材の片付け・清掃</label>
+          <label class="cb-item"><input type="checkbox" class="after-check"> 領収書・書類の整理</label>
+          <label class="cb-item"><input type="checkbox" class="after-check"> スプレッドシートへの転記確認</label>
+          <label class="cb-item"><input type="checkbox" class="after-check"> 写真の整理・保存</label>
+        </div>
+        <div class="field" style="margin-top:10px"><div class="lbl">後始末メモ</div><textarea id="after-memo" placeholder="次回に活かせる改善点など"></textarea></div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(7)">後始末を記録する</button>
+      <div class="toast" id="toast-7"></div>
+    </div>
+
+    <div id="sp-8" class="step-page">
+      <div class="section">
+        <div class="sec-title">アフターフォロー</div>
+        <div class="row2">
+          <div class="field"><div class="lbl">フォロー予定日</div><input type="date" id="af-date"></div>
+          <div class="field"><div class="lbl">連絡方法</div>
+            <select id="af-method"><option value="">選択</option><option>電話</option><option>LINE</option><option>訪問</option></select>
+          </div>
+        </div>
+        <div class="field"><div class="lbl">フォロー内容</div><textarea id="af-content" placeholder="作業後の状況確認、追加ニーズのヒアリング など"></textarea></div>
+        <div class="field"><div class="lbl">お客様の反応・次回につながる情報</div><textarea id="af-result" placeholder="ご満足いただけた、追加依頼の可能性あり など"></textarea></div>
+        <div class="field"><div class="lbl">紹介・リピート見込み</div>
+          <select id="af-repeat"><option value="">選択</option><option>高い</option><option>普通</option><option>低い</option></select>
+        </div>
+      </div>
+      <button class="btn-primary" onclick="saveStep(8)">アフターフォローを完了する</button>
+      <div class="toast" id="toast-8"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const GAS_URL='https://script.google.com/macros/s/AKfycbxZJGVGV6tRY_m4sCOrbq7v4nS8u7VLmt1kS92FOvKdyOuOFu2jFJXExS_rsYUHF15O/exec';
+const STEPS=['問い合わせ','見積もり','見積確定','作業日確定','作業準備','作業','完了報告','後始末','アフター'];
+const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
+const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
+let cases=[];
+let currentId=null;
+let caseCounter=1;
+
+function showLoading(){document.getElementById('loading-overlay').classList.add('show');}
+function hideLoading(){document.getElementById('loading-overlay').classList.remove('show');}
+
+async function loadFromSheet(){
+  showLoading();
+  try{
+    const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now());
+    const text=await res.text();
+    const loaded=JSON.parse(text);
+    if(Array.isArray(loaded)&&loaded.length>0){cases=loaded;caseCounter=cases.length+1;}
+    document.getElementById('sync-status').textContent='スプレッドシートと同期済み';
+  }catch(e){
+    document.getElementById('sync-status').textContent='オフライン（ローカルデータを使用中）';
+    const local=localStorage.getItem('musubi_gas');
+    if(local)cases=JSON.parse(local);
+  }
+  hideLoading();renderList();renderStats();
+}
+
+function saveToSheet(c){
+  const img=new Image();
+  img.src=GAS_URL+'?action=save_case&id='+encodeURIComponent(c.id)+'&data='+encodeURIComponent(JSON.stringify(c));
+  localStorage.setItem('musubi_gas',JSON.stringify(cases));
+}
+
+function genId(){const d=new Date();return 'MU-'+String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0')+String(caseCounter).padStart(3,'0');}
+function toggleSameAddress(){
+  const chk=document.getElementById('n-same-address');
+  const wa=document.getElementById('n-address');
+  if(chk.checked){wa.value=document.getElementById('n-customer-address').value;wa.readOnly=true;wa.style.background='#f5f5f5';document.getElementById('n-customer-address').addEventListener('input',syncAddress);}
+  else{wa.readOnly=false;wa.style.background='';document.getElementById('n-customer-address').removeEventListener('input',syncAddress);}
+}
+function syncAddress(){if(document.getElementById('n-same-address').checked)document.getElementById('n-address').value=document.getElementById('n-customer-address').value;}
+function updateCalUrls(){
+  const c=cases.find(x=>x.id===currentId);if(!c)return;
+  const compE=(document.getElementById('company-estimate').value||'').trim()||'便利屋むすび';
+  const compW=(document.getElementById('company-work').value||'').trim()||'便利屋むすび';
+  const ec=document.getElementById('btn-estimate-cal');
+  const wc=document.getElementById('btn-work-cal');
+  if(ec&&!c.estimateCalSynced){const d=c.stepData&&c.stepData[1]||{};ec.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compE,name:c.name,type:'見積もり',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.time||'10:00',crew:'',vehicle:'',partner:'',prep:'見積もり訪問'}).toString();}
+  if(wc&&!c.calendarSynced){const d=c.stepData&&c.stepData[3]||{};wc.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compW,name:c.name,type:c.type||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.start||'09:00',crew:d.crew||'',vehicle:d.vehicle||'',partner:d.partner||'',prep:d.prep||''}).toString();}
+}
+function buildSheetUrl(c){return GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope2:c.hope2||'',time:c.time||'',memo:c.memo||'',status:STATUS[c.stepIndex]}).toString();}
+function buildDoneUrl(c){const d=c.stepData&&c.stepData[6]||{};return GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope2:c.hope2||'',time:c.time||'',memo:c.memo||'',status:'完了',doneDate:d.date||'',amount:d.amount||'',payment:d.pay||'',paydate:d.paydate||'',doneMemo:d.memo||''}).toString();}
+function confirmDone(type){
+  const c=cases.find(x=>x.id===currentId);if(!c)return;
+  if(type==='sheet'){c.synced=true;saveToSheet(c);const b=document.getElementById('btn-sheet-0');b.innerHTML='✓ 転記済み';b.classList.add('done');b.removeAttribute('href');document.getElementById('btn-sheet-0-confirm').style.display='none';showToast('toast-sheet','転記完了としました','ok');}
+  if(type==='estimateCal'){c.estimateCalSynced=true;saveToSheet(c);document.getElementById('btn-estimate-cal-confirm').style.display='none';const b=document.getElementById('btn-estimate-cal');b.innerHTML='✓ 見積もり登録済み';b.classList.add('done');b.removeAttribute('href');showToast('toast-1','カレンダー登録完了としました','ok');}
+  if(type==='workCal'){c.calendarSynced=true;saveToSheet(c);document.getElementById('btn-work-cal-confirm').style.display='none';const b=document.getElementById('btn-work-cal');b.innerHTML='✓ 作業日登録済み';b.classList.add('done');b.removeAttribute('href');showToast('toast-3','カレンダー登録完了としました','ok');}
+  if(type==='done'){c.doneSynced=true;saveToSheet(c);const b=document.getElementById('btn-done-sheet');b.innerHTML='✓ 完了報告転記済み';b.classList.add('done');b.removeAttribute('href');document.getElementById('btn-done-confirm').style.display='none';showToast('toast-6','完了報告の転記完了としました','ok');}
+}
+function showPage(p){
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  if(p==='list'){document.querySelectorAll('.nav-btn')[0].classList.add('active');renderList();renderStats();}
+  if(p==='new'){document.querySelectorAll('.nav-btn')[1].classList.add('active');initNew();}
+}
+function renderStats(){
+  const total=cases.length,active=cases.filter(c=>c.stepIndex<8).length,done=cases.filter(c=>c.stepIndex>=8).length;
+  const n=new Date(),thisMonth=cases.filter(c=>{const d=new Date(c.date);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length;
+  document.getElementById('stat-grid').innerHTML=`<div class="stat-card"><div class="stat-num">${total}</div><div class="stat-lbl">総案件数</div></div><div class="stat-card"><div class="stat-num" style="color:#0C447C">${active}</div><div class="stat-lbl">対応中</div></div><div class="stat-card"><div class="stat-num" style="color:#085041">${done}</div><div class="stat-lbl">完了</div></div><div class="stat-card"><div class="stat-num" style="color:#633806">${thisMonth}</div><div class="stat-lbl">今月受付</div></div>`;
+}
+function renderList(){
+  const q=(document.getElementById('search-input').value||'').toLowerCase();
+  let list=cases.filter(c=>!q||c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)||(c.address||'').toLowerCase().includes(q)).slice().reverse();
+  const el=document.getElementById('case-list');
+  if(!list.length){el.innerHTML='<div class="empty">案件がありません<br><span style="font-size:12px">「新規受付」から登録してください</span></div>';return;}
+  el.innerHTML=list.map(c=>{
+    const bars=STEPS.map((_,i)=>`<div class="pb-step ${i<c.stepIndex?'done':i===c.stepIndex?'current':''}"></div>`).join('');
+    const syncedMark=c.synced?'<span class="synced-badge">転記済み</span>':'';
+    return `<div class="case-card" onclick="openDetail('${c.id}')"><div class="case-card-header"><div><div class="case-name">${c.name} 様${syncedMark}</div><div style="font-size:12px;color:#666">${c.id} ・ ${c.date}</div></div><span class="badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span></div><div class="case-meta">${c.type||''} ${c.address?'/ '+c.address:''}</div><div class="progress-bar">${bars}</div></div>`;
+  }).join('');
+}
+function initNew(){
+  document.getElementById('n-id').value=genId();
+  document.getElementById('n-date').value=new Date().toISOString().split('T')[0];
+  const wa=document.getElementById('n-address');wa.readOnly=false;wa.style.background='';
+  document.getElementById('n-same-address').checked=false;
+}
+function clearNew(){
+  ['n-name','n-tel','n-customer-address','n-address','n-floor','n-items','n-notes','n-memo','n-hope1','n-hope2','n-staff'].forEach(id=>document.getElementById(id).value='');
+  ['n-channel','n-building','n-time','n-photo'].forEach(id=>document.getElementById(id).value='');
+  document.querySelectorAll('.n-type').forEach(c=>c.checked=false);
+  document.getElementById('n-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('n-same-address').checked=false;
+  document.getElementById('new-toast').className='toast';
+}
+function saveNew(){
+  const name=document.getElementById('n-name').value.trim();
+  const tel=document.getElementById('n-tel').value.trim();
+  const date=document.getElementById('n-date').value;
+  const type=[...document.querySelectorAll('.n-type:checked')].map(c=>c.value).join('・');
+  if(!name||!tel||!date||!type){showToast('new-toast','必須項目（受付日・お客様名・電話番号・作業種別）を入力してください','err');return;}
+  const c={id:document.getElementById('n-id').value,date,channel:document.getElementById('n-channel').value,staff:document.getElementById('n-staff').value,name,tel,customerAddress:document.getElementById('n-customer-address').value,address:document.getElementById('n-address').value,sameAddress:document.getElementById('n-same-address').checked,building:document.getElementById('n-building').value,floor:document.getElementById('n-floor').value,type,items:document.getElementById('n-items').value,notes:document.getElementById('n-notes').value,photo:document.getElementById('n-photo').value,time:document.getElementById('n-time').value,hope1:document.getElementById('n-hope1').value,hope2:document.getElementById('n-hope2').value,memo:document.getElementById('n-memo').value,stepIndex:0,stepData:{},synced:false,calendarSynced:false,estimateCalSynced:false,doneSynced:false};
+  cases.push(c);caseCounter++;saveToSheet(c);
+  showToast('new-toast',`${name} 様の案件を登録しました`,'ok');
+  setTimeout(()=>{clearNew();showPage('list');},1200);
+}
+function openDetail(id){
+  currentId=id;
+  const c=cases.find(x=>x.id===id);if(!c)return;
+  document.getElementById('d-name').textContent=c.name+' 様';
+  document.getElementById('d-id').textContent=c.id+' ・ 受付日: '+c.date;
+  document.getElementById('d-badge').innerHTML=`<span class="badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span>`;
+  document.getElementById('step-nav').innerHTML=STEPS.map((s,i)=>`<button class="step-btn ${i===0?'active':''} ${i<c.stepIndex?'done':''}" onclick="showStep(${i})">${i<c.stepIndex?'✓ ':''} ${s}</button>`).join('');
+  document.getElementById('sp0-info').innerHTML=[['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],['お客様名',c.name],['電話番号',c.tel],['お客様住所',c.customerAddress],['作業場所',c.sameAddress?'お客様住所と同じ':c.address],['建物種別',c.building],['階数・間取り',c.floor],['作業種別',c.type],['品目・量',c.items],['特記事項',c.notes],['事前写真',c.photo],['希望日①',c.hope1],['希望日②',c.hope2],['希望時間帯',c.time],['担当メモ',c.memo]].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
+  const s0=document.getElementById('btn-sheet-0');
+  if(c.synced){s0.innerHTML='✓ 転記済み';s0.classList.add('done');s0.removeAttribute('href');document.getElementById('btn-sheet-0-confirm').style.display='none';}
+  else{s0.href=buildSheetUrl(c);s0.innerHTML='<svg style="width:16px;height:16px;flex-shrink:0" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#0F6E56" stroke-width="1.2"/><path d="M5 6h6M5 8h6M5 10h4" stroke="#0F6E56" stroke-width="1" stroke-linecap="round"/></svg> 管理シートに転記する';s0.classList.remove('done');document.getElementById('btn-sheet-0-confirm').style.display='block';}
+  const ds=document.getElementById('btn-done-sheet');
+  if(c.doneSynced){ds.innerHTML='✓ 完了報告転記済み';ds.classList.add('done');ds.removeAttribute('href');document.getElementById('btn-done-confirm').style.display='none';}
+  else{ds.href=buildDoneUrl(c);ds.classList.remove('done');document.getElementById('btn-done-confirm').style.display='block';}
+  const ec=document.getElementById('btn-estimate-cal');
+  if(c.estimateCalSynced){ec.innerHTML='✓ 見積もり登録済み';ec.classList.add('done');ec.removeAttribute('href');document.getElementById('btn-estimate-cal-confirm').style.display='none';}
+  else{ec.innerHTML='登録';ec.classList.remove('done');document.getElementById('btn-estimate-cal-confirm').style.display='none';}
+  const wc=document.getElementById('btn-work-cal');
+  if(c.calendarSynced){wc.innerHTML='✓ 作業日登録済み';wc.classList.add('done');wc.removeAttribute('href');document.getElementById('btn-work-cal-confirm').style.display='none';}
+  else{wc.innerHTML='登録';wc.classList.remove('done');document.getElementById('btn-work-cal-confirm').style.display='none';}
+  document.getElementById('company-estimate').value='便利屋むすび';
+  document.getElementById('company-work').value='便利屋むすび';
+  document.getElementById('toast-sheet').className='toast';
+  loadStepData(c);showStep(c.stepIndex);setTimeout(updateCalUrls,100);
+  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('page-detail').classList.add('active');
+}
+function loadStepData(c){
+  const d=c.stepData||{};
+  if(d[1]){document.getElementById('e-method').value=d[1].method||'';document.getElementById('e-date').value=d[1].date||'';document.getElementById('e-time').value=d[1].time||'10:00';document.getElementById('e-amount').value=d[1].amount||'';document.getElementById('e-breakdown').value=d[1].breakdown||'';document.getElementById('e-memo').value=d[1].memo||'';}
+  if(d[2]){['c-amount','c-date','c-contact','c-notes'].forEach(id=>{const k=id.replace('c-','');if(d[2][k])document.getElementById(id).value=d[2][k];});}
+  if(d[3]){document.getElementById('w-date').value=d[3].date||'';document.getElementById('w-start').value=d[3].start||'09:00';document.getElementById('w-crew').value=d[3].crew||'';document.getElementById('w-vehicle').value=d[3].vehicle||'';document.getElementById('w-prep').value=d[3].prep||'';document.getElementById('w-partner').value=d[3].partner||'';}
+  if(d[5]){['wk-start','wk-end','wk-detail','wk-extra'].forEach(id=>{const k=id.replace('wk-','');if(d[5][k])document.getElementById(id).value=d[5][k];});}
+  if(d[6]){document.getElementById('done-date').value=d[6].date||'';document.getElementById('done-amount').value=d[6].amount||'';document.getElementById('done-pay').value=d[6].pay||'';document.getElementById('done-paydate').value=d[6].paydate||'';document.getElementById('done-memo').value=d[6].memo||'';}
+  if(d[8]){['af-date','af-method','af-content','af-result','af-repeat'].forEach(id=>{const k=id.replace('af-','');if(d[8][k])document.getElementById(id).value=d[8][k];});}
+}
+function showStep(i){
+  document.querySelectorAll('.step-page').forEach(el=>el.classList.remove('active'));
+  document.getElementById('sp-'+i).classList.add('active');
+  document.querySelectorAll('.step-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
+}
+function saveStep(stepIdx){
+  const c=cases.find(x=>x.id===currentId);if(!c)return;
+  if(!c.stepData)c.stepData={};
+  let data={};
+  if(stepIdx===1){data={method:document.getElementById('e-method').value,date:document.getElementById('e-date').value,time:document.getElementById('e-time').value,amount:document.getElementById('e-amount').value,breakdown:document.getElementById('e-breakdown').value,memo:document.getElementById('e-memo').value};c.stepData[1]=data;updateCalUrls();}
+  if(stepIdx===2){['c-amount','c-date','c-contact','c-notes'].forEach(id=>{data[id.replace('c-','')]=document.getElementById(id).value;});}
+  if(stepIdx===3){data={date:document.getElementById('w-date').value,start:document.getElementById('w-start').value,crew:document.getElementById('w-crew').value,vehicle:document.getElementById('w-vehicle').value,prep:document.getElementById('w-prep').value,partner:document.getElementById('w-partner').value};c.stepData[3]=data;updateCalUrls();}
+  if(stepIdx===4){data.checks=[...document.querySelectorAll('.prep-check:checked')].length;data.memo=document.getElementById('prep-memo').value;}
+  if(stepIdx===5){['wk-start','wk-end','wk-detail','wk-extra'].forEach(id=>{data[id.replace('wk-','')]=document.getElementById(id).value;});}
+  if(stepIdx===6){data={date:document.getElementById('done-date').value,amount:document.getElementById('done-amount').value,pay:document.getElementById('done-pay').value,paydate:document.getElementById('done-paydate').value,memo:document.getElementById('done-memo').value};c.stepData[6]=data;const ds=document.getElementById('btn-done-sheet');if(!c.doneSynced)ds.href=buildDoneUrl(c);}
+  if(stepIdx===7){data.checks=[...document.querySelectorAll('.after-check:checked')].length;data.memo=document.getElementById('after-memo').value;}
+  if(stepIdx===8){['af-date','af-method','af-content','af-result','af-repeat'].forEach(id=>{data[id.replace('af-','')]=document.getElementById(id).value;});}
+  if(stepIdx!==1&&stepIdx!==3&&stepIdx!==6)c.stepData[stepIdx]=data;
+  if(c.stepIndex<=stepIdx)c.stepIndex=Math.min(stepIdx+1,8);
+  saveToSheet(c);
+  document.getElementById('d-badge').innerHTML=`<span class="badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span>`;
+  document.getElementById('step-nav').innerHTML=STEPS.map((s,i)=>`<button class="step-btn ${i===stepIdx?'active':''} ${i<stepIdx?'done':''}" onclick="showStep(${i})">${i<stepIdx?'✓ ':''} ${s}</button>`).join('');
+  showToast('toast-'+stepIdx,'保存しました。次のステップへ進む場合は上のタブを選んでください。','ok');
+}
+function showToast(id,msg,type){
+  const t=document.getElementById(id);if(!t)return;
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',4000);
+}
+loadFromSheet();initNew();
+</script>
+</body>
+</html>
