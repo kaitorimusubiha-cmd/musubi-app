@@ -202,7 +202,6 @@ textarea{resize:vertical;min-height:60px}
     <div id="sp-0" class="step-page active">
       <div class="section"><div class="sec-title">受付・お客様情報</div><div id="sp0-info"></div></div>
       <button id="btn-sheet-0" class="btn-primary" onclick="syncSheet()" style="margin-top:8px">
-        <svg style="width:16px;height:16px;flex-shrink:0;vertical-align:middle;margin-right:6px" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#fff" stroke-width="1.2"/><path d="M5 6h6M5 8h6M5 10h4" stroke="#fff" stroke-width="1" stroke-linecap="round"/></svg>
         管理シートに転記する
       </button>
       <div class="toast" id="toast-sheet"></div>
@@ -390,13 +389,21 @@ function hideLoading(){document.getElementById('loading-overlay').classList.remo
 async function loadFromSheet(){
   showLoading();
   try{
+    const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now(),{mode:'no-cors'});
+    // no-corsではレスポンスが読めないのでローカルから読み込む
+    throw new Error('no-cors');
+  }catch(e){
+    // fetchで直接読めないためローカルストレージを使用
+  }
+  // JSONP方式で読み込む
+  try{
     const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now());
     const text=await res.text();
     const loaded=JSON.parse(text);
     if(Array.isArray(loaded)&&loaded.length>0){cases=loaded;caseCounter=cases.length+1;}
     document.getElementById('sync-status').textContent='スプレッドシートと同期済み';
   }catch(e){
-    document.getElementById('sync-status').textContent='オフライン（ローカルデータを使用中）';
+    document.getElementById('sync-status').textContent='ローカルデータを使用中';
     const local=localStorage.getItem('musubi_gas');
     if(local)cases=JSON.parse(local);
   }
@@ -404,8 +411,7 @@ async function loadFromSheet(){
 }
 
 function saveToSheet(c){
-  const img=new Image();
-  img.src=GAS_URL+'?action=save_case&id='+encodeURIComponent(c.id)+'&data='+encodeURIComponent(JSON.stringify(c));
+  fetch(GAS_URL+'?action=save_case&id='+encodeURIComponent(c.id)+'&data='+encodeURIComponent(JSON.stringify(c)),{mode:'no-cors'}).catch(()=>{});
   localStorage.setItem('musubi_gas',JSON.stringify(cases));
 }
 
@@ -415,12 +421,12 @@ async function syncSheet(){
   btn.disabled=true;btn.textContent='転記中...';
   try{
     const url=GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope2:c.hope2||'',time:c.time||'',memo:c.memo||'',status:STATUS[c.stepIndex]}).toString();
-    await fetch(url);
+    await fetch(url,{mode:'no-cors'});
     c.synced=true;saveToSheet(c);
     btn.textContent='✓ 転記済み';btn.style.background='#9FE1CB';btn.style.color='#085041';
     showToast('toast-sheet','管理シートに転記しました','ok');
   }catch(e){
-    btn.disabled=false;btn.innerHTML='<svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#fff" stroke-width="1.2"/><path d="M5 6h6M5 8h6M5 10h4" stroke="#fff" stroke-width="1" stroke-linecap="round"/></svg>管理シートに転記する';
+    btn.disabled=false;btn.textContent='管理シートに転記する';
     showToast('toast-sheet','転記に失敗しました。再度お試しください。','err');
   }
 }
@@ -432,7 +438,7 @@ async function syncDone(){
   try{
     const d=c.stepData&&c.stepData[6]||{};
     const url=GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope2:c.hope2||'',time:c.time||'',memo:c.memo||'',status:'完了',doneDate:d.date||'',amount:d.amount||'',payment:d.pay||'',paydate:d.paydate||'',doneMemo:d.memo||''}).toString();
-    await fetch(url);
+    await fetch(url,{mode:'no-cors'});
     c.doneSynced=true;saveToSheet(c);
     btn.textContent='✓ 完了報告転記済み';btn.style.background='#9FE1CB';btn.style.color='#085041';
     showToast('toast-6','完了報告を転記しました','ok');
@@ -522,10 +528,10 @@ function openDetail(id){
   document.getElementById('sp0-info').innerHTML=[['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],['お客様名',c.name],['電話番号',c.tel],['お客様住所',c.customerAddress],['作業場所',c.sameAddress?'お客様住所と同じ':c.address],['建物種別',c.building],['階数・間取り',c.floor],['作業種別',c.type],['品目・量',c.items],['特記事項',c.notes],['事前写真',c.photo],['希望日①',c.hope1],['希望日②',c.hope2],['希望時間帯',c.time],['担当メモ',c.memo]].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
   const s0=document.getElementById('btn-sheet-0');
   if(c.synced){s0.textContent='✓ 転記済み';s0.style.background='#9FE1CB';s0.style.color='#085041';s0.disabled=true;}
-  else{s0.innerHTML='<svg style="width:16px;height:16px;vertical-align:middle;margin-right:6px" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="12" height="12" rx="2" stroke="#fff" stroke-width="1.2"/><path d="M5 6h6M5 8h6M5 10h4" stroke="#fff" stroke-width="1" stroke-linecap="round"/></svg>管理シートに転記する';s0.style.background='';s0.style.color='';s0.disabled=false;}
+  else{s0.textContent='管理シートに転記する';s0.style.background='';s0.style.color='';s0.disabled=false;}
   const ds=document.getElementById('btn-done-sheet');
   if(c.doneSynced){ds.textContent='✓ 完了報告転記済み';ds.style.background='#9FE1CB';ds.style.color='#085041';ds.disabled=true;}
-  else{ds.textContent='完了報告をスプレッドシートに転記する';ds.style.background='';ds.style.color='';ds.disabled=false;}
+  else{ds.textContent='完了報告をスプレッドシートに転記する';ds.style.background='#0F6E56';ds.style.color='#fff';ds.disabled=false;}
   const ec=document.getElementById('btn-estimate-cal');
   if(c.estimateCalSynced){ec.innerHTML='✓ 見積もり登録済み';ec.classList.add('done');ec.removeAttribute('href');document.getElementById('btn-estimate-cal-confirm').style.display='none';}
   else{ec.innerHTML='登録';ec.classList.remove('done');document.getElementById('btn-estimate-cal-confirm').style.display='none';}
