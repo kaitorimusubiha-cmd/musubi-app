@@ -35,6 +35,8 @@ textarea{resize:vertical;min-height:60px}
 .btn-primary:active{transform:scale(0.98)}
 .btn-primary:disabled{background:#9FE1CB;cursor:not-allowed}
 .btn-sec{padding:8px 14px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:13px;cursor:pointer}
+.btn-danger{width:100%;padding:8px;border-radius:8px;border:1px solid #F09595;background:#fff;color:#A32D2D;font-size:13px;cursor:pointer;margin-top:8px}
+.btn-danger:active{transform:scale(0.98)}
 .btn-link{width:100%;padding:10px;border-radius:8px;border:1.5px solid #1D9E75;background:#fff;color:#0F6E56;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none}
 .btn-link.done{border-color:#9FE1CB;color:#9FE1CB;cursor:default;pointer-events:none}
 .btn-link.blue{border-color:#185FA5;color:#185FA5}
@@ -201,9 +203,8 @@ textarea{resize:vertical;min-height:60px}
 
     <div id="sp-0" class="step-page active">
       <div class="section"><div class="sec-title">受付・お客様情報</div><div id="sp0-info"></div></div>
-      <button id="btn-sheet-0" class="btn-primary" onclick="syncSheet()" style="margin-top:8px">
-        管理シートに転記する
-      </button>
+      <button id="btn-sheet-0" class="btn-primary" onclick="syncSheet()" style="margin-top:8px">管理シートに転記する</button>
+      <button class="btn-danger" onclick="deleteCase()">この案件を削除する</button>
       <div class="toast" id="toast-sheet"></div>
     </div>
 
@@ -331,9 +332,7 @@ textarea{resize:vertical;min-height:60px}
         <div class="field"><div class="lbl">完了報告メモ</div><textarea id="done-memo" placeholder="お客様の反応、次回につながる情報など"></textarea></div>
       </div>
       <button class="btn-primary" onclick="saveStep(6)">完了報告を保存</button>
-      <button id="btn-done-sheet" class="btn-primary" onclick="syncDone()" style="margin-top:8px;background:#0F6E56">
-        完了報告をスプレッドシートに転記する
-      </button>
+      <button id="btn-done-sheet" class="btn-primary" onclick="syncDone()" style="margin-top:8px;background:#0F6E56">完了報告をスプレッドシートに転記する</button>
       <div class="toast" id="toast-6"></div>
     </div>
 
@@ -375,7 +374,7 @@ textarea{resize:vertical;min-height:60px}
 </div>
 
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbwld2jFaDaXnd4Z9TFX6uopEDP1498Yo67M3q3Vr41cTaARJtB7FtfLSHeQDNCPCPDZ/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbzHUFN4Fm5R5hYehuAucvO5GkQxQu17h4R9fWK_u25KjyFh1O7mpSw3KqAs25U_1vfB/exec';
 const STEPS=['問い合わせ','見積もり','見積確定','作業日確定','作業準備','作業','完了報告','後始末','アフター'];
 const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
 const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
@@ -388,14 +387,6 @@ function hideLoading(){document.getElementById('loading-overlay').classList.remo
 
 async function loadFromSheet(){
   showLoading();
-  try{
-    const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now(),{mode:'no-cors'});
-    // no-corsではレスポンスが読めないのでローカルから読み込む
-    throw new Error('no-cors');
-  }catch(e){
-    // fetchで直接読めないためローカルストレージを使用
-  }
-  // JSONP方式で読み込む
   try{
     const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now());
     const text=await res.text();
@@ -446,6 +437,16 @@ async function syncDone(){
     btn.disabled=false;btn.textContent='完了報告をスプレッドシートに転記する';
     showToast('toast-6','転記に失敗しました。再度お試しください。','err');
   }
+}
+
+function deleteCase(){
+  const c=cases.find(x=>x.id===currentId);if(!c)return;
+  if(!confirm(c.name+' 様の案件を削除しますか？\nこの操作は取り消せません。'))return;
+  const idx=cases.findIndex(x=>x.id===currentId);
+  cases.splice(idx,1);
+  localStorage.setItem('musubi_gas',JSON.stringify(cases));
+  fetch(GAS_URL+'?action=delete_case&id='+encodeURIComponent(currentId),{mode:'no-cors'}).catch(()=>{});
+  showPage('list');
 }
 
 function genId(){const d=new Date();return 'MU-'+String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0')+String(caseCounter).padStart(3,'0');}
