@@ -131,7 +131,9 @@ textarea{resize:vertical;min-height:60px}
         <div class="field"><div class="lbl">受付方法</div>
           <select id="n-channel"><option value="">選択</option><option>電話</option><option>LINE</option><option>紹介</option><option>チラシ</option><option>その他</option></select>
         </div>
-        <div class="field"><div class="lbl">担当者</div><input type="text" id="n-staff" placeholder="氏名"></div>
+        <div class="field"><div class="lbl">担当者</div>
+          <select id="n-staff"><option value="">選択</option><option>むすび</option><option>RF</option><option>その他</option></select>
+        </div>
       </div>
     </div>
     <div class="section">
@@ -140,16 +142,16 @@ textarea{resize:vertical;min-height:60px}
         <div class="field"><div class="lbl">お客様名 <span class="req">必須</span></div><input type="text" id="n-name" placeholder="山田 太郎"></div>
         <div class="field"><div class="lbl">電話番号 <span class="req">必須</span></div><input type="tel" id="n-tel" placeholder="090-XXXX-XXXX"></div>
       </div>
-      <div class="field"><div class="lbl">お客様住所</div><input type="text" id="n-customer-address" placeholder="浜松市○○区○○町（ご自宅）"></div>
+      <div class="field"><div class="lbl">お客様住所</div><input type="text" id="n-customer-address" placeholder="浜松市○○区○○町" oninput="syncAddressIfChecked()"></div>
     </div>
     <div class="section">
       <div class="sec-title">作業場所</div>
       <div class="field">
         <div class="same-check-row">
-          <input type="checkbox" id="n-same-address" onchange="toggleSameAddress()">
+          <input type="checkbox" id="n-same-address" checked onchange="toggleSameAddress()">
           <label for="n-same-address">お客様住所と同じ</label>
         </div>
-        <input type="text" id="n-address" placeholder="浜松市○○区○○町（作業場所）">
+        <input type="text" id="n-address" placeholder="浜松市○○区○○町（作業場所）" readonly style="background:#f5f5f5;color:#888">
       </div>
       <div class="row2">
         <div class="field"><div class="lbl">建物種別</div>
@@ -180,8 +182,12 @@ textarea{resize:vertical;min-height:60px}
         </div>
       </div>
       <div class="row2">
-        <div class="field"><div class="lbl">希望日①</div><input type="date" id="n-hope1"></div>
-        <div class="field"><div class="lbl">希望日②</div><input type="date" id="n-hope2"></div>
+        <div class="field"><div class="lbl">見積もり希望日</div><input type="date" id="n-hope1"></div>
+        <div class="field"><div class="lbl">見積もり希望時間</div><input type="time" id="n-hope1-time"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><div class="lbl">作業希望日</div><input type="date" id="n-hope2"></div>
+        <div class="field"><div class="lbl">作業希望時間</div><input type="time" id="n-hope2-time"></div>
       </div>
       <div class="field"><div class="lbl">担当メモ</div><textarea id="n-memo" placeholder="高齢者一人暮らし・丁寧対応希望 など"></textarea></div>
     </div>
@@ -204,7 +210,6 @@ textarea{resize:vertical;min-height:60px}
     <div class="step-nav" id="step-nav"></div>
 
     <div id="sp-0" class="step-page active">
-      <!-- 表示モード -->
       <div id="sp0-view">
         <div class="section">
           <div class="sec-title">
@@ -217,7 +222,6 @@ textarea{resize:vertical;min-height:60px}
         <button class="btn-danger" onclick="deleteCase()">この案件を削除する</button>
         <div class="toast" id="toast-sheet"></div>
       </div>
-      <!-- 編集モード -->
       <div id="sp0-edit" style="display:none">
         <div class="section">
           <div class="sec-title">
@@ -230,13 +234,21 @@ textarea{resize:vertical;min-height:60px}
               <select id="ed-channel"><option value="">選択</option><option>電話</option><option>LINE</option><option>紹介</option><option>チラシ</option><option>その他</option></select>
             </div>
           </div>
-          <div class="field"><div class="lbl">担当者</div><input type="text" id="ed-staff" placeholder="氏名"></div>
+          <div class="field"><div class="lbl">担当者</div>
+            <select id="ed-staff"><option value="">選択</option><option>むすび</option><option>RF</option><option>その他</option></select>
+          </div>
           <div class="row2">
-            <div class="field"><div class="lbl">お客様名</div><input type="text" id="ed-name" placeholder="山田 太郎"></div>
-            <div class="field"><div class="lbl">電話番号</div><input type="tel" id="ed-tel" placeholder="090-XXXX-XXXX"></div>
+            <div class="field"><div class="lbl">お客様名</div><input type="text" id="ed-name"></div>
+            <div class="field"><div class="lbl">電話番号</div><input type="tel" id="ed-tel"></div>
           </div>
           <div class="field"><div class="lbl">お客様住所</div><input type="text" id="ed-customer-address"></div>
-          <div class="field"><div class="lbl">作業場所</div><input type="text" id="ed-address"></div>
+          <div class="field">
+            <div class="same-check-row">
+              <input type="checkbox" id="ed-same-address" onchange="toggleEditSameAddress()">
+              <label for="ed-same-address">作業場所もお客様住所と同じ</label>
+            </div>
+            <input type="text" id="ed-address" placeholder="作業場所">
+          </div>
           <div class="row2">
             <div class="field"><div class="lbl">建物種別</div>
               <select id="ed-building"><option value="">選択</option><option>一戸建て</option><option>マンション</option><option>アパート</option><option>店舗・事務所</option><option>倉庫・車庫</option><option>その他</option></select>
@@ -263,8 +275,12 @@ textarea{resize:vertical;min-height:60px}
             </div>
           </div>
           <div class="row2">
-            <div class="field"><div class="lbl">希望日①</div><input type="date" id="ed-hope1"></div>
-            <div class="field"><div class="lbl">希望日②</div><input type="date" id="ed-hope2"></div>
+            <div class="field"><div class="lbl">見積もり希望日</div><input type="date" id="ed-hope1"></div>
+            <div class="field"><div class="lbl">見積もり希望時間</div><input type="time" id="ed-hope1-time"></div>
+          </div>
+          <div class="row2">
+            <div class="field"><div class="lbl">作業希望日</div><input type="date" id="ed-hope2"></div>
+            <div class="field"><div class="lbl">作業希望時間</div><input type="time" id="ed-hope2-time"></div>
           </div>
           <div class="field"><div class="lbl">担当メモ</div><textarea id="ed-memo"></textarea></div>
         </div>
@@ -276,6 +292,7 @@ textarea{resize:vertical;min-height:60px}
     <div id="sp-1" class="step-page">
       <div class="section">
         <div class="sec-title">見積もり情報</div>
+        <div id="sp1-hope-ref" style="background:#E6F1FB;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#0C447C;display:none"></div>
         <div class="row2">
           <div class="field"><div class="lbl">見積もり方法</div>
             <select id="e-method"><option value="">選択</option><option>現地見積もり</option><option>写真見積もり</option><option>電話概算</option></select>
@@ -320,6 +337,7 @@ textarea{resize:vertical;min-height:60px}
     <div id="sp-3" class="step-page">
       <div class="section">
         <div class="sec-title">作業日確定</div>
+        <div id="sp3-hope-ref" style="background:#E6F1FB;border-radius:8px;padding:8px 12px;margin-bottom:12px;font-size:12px;color:#0C447C;display:none"></div>
         <div class="row2">
           <div class="field"><div class="lbl">作業日 <span class="req">必須</span></div><input type="date" id="w-date"></div>
           <div class="field"><div class="lbl">開始時間</div><input type="time" id="w-start" value="09:00"></div>
@@ -476,7 +494,7 @@ async function syncSheet(){
   const btn=document.getElementById('btn-sheet-0');
   btn.disabled=true;btn.textContent='転記中...';
   try{
-    const url=GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope2:c.hope2||'',time:c.time||'',memo:c.memo||'',status:STATUS[c.stepIndex]}).toString();
+    const url=GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope1time:c.hope1time||'',hope2:c.hope2||'',hope2time:c.hope2time||'',time:c.time||'',memo:c.memo||'',status:STATUS[c.stepIndex]}).toString();
     await fetch(url,{mode:'no-cors'});
     c.synced=true;saveToSheet(c);
     btn.textContent='✓ 転記済み';btn.style.background='#9FE1CB';btn.style.color='#085041';
@@ -493,7 +511,7 @@ async function syncDone(){
   btn.disabled=true;btn.textContent='転記中...';
   try{
     const d=c.stepData&&c.stepData[6]||{};
-    const url=GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope2:c.hope2||'',time:c.time||'',memo:c.memo||'',status:'完了',doneDate:d.date||'',amount:d.amount||'',payment:d.pay||'',paydate:d.paydate||'',doneMemo:d.memo||''}).toString();
+    const url=GAS_URL+'?'+new URLSearchParams({action:'sheet',id:c.id,date:c.date,channel:c.channel||'',staff:c.staff||'',name:c.name,tel:c.tel,customerAddress:c.customerAddress||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),building:c.building||'',floor:c.floor||'',type:c.type||'',items:c.items||'',notes:c.notes||'',photo:c.photo||'',hope1:c.hope1||'',hope1time:c.hope1time||'',hope2:c.hope2||'',hope2time:c.hope2time||'',time:c.time||'',memo:c.memo||'',status:'完了',doneDate:d.date||'',amount:d.amount||'',payment:d.pay||'',paydate:d.paydate||'',doneMemo:d.memo||''}).toString();
     await fetch(url,{mode:'no-cors'});
     c.doneSynced=true;saveToSheet(c);
     btn.textContent='✓ 完了報告転記済み';btn.style.background='#9FE1CB';btn.style.color='#085041';
@@ -502,6 +520,47 @@ async function syncDone(){
     btn.disabled=false;btn.textContent='完了報告をスプレッドシートに転記する';
     showToast('toast-6','転記に失敗しました。再度お試しください。','err');
   }
+}
+
+function syncAddressIfChecked(){
+  if(document.getElementById('n-same-address').checked){
+    document.getElementById('n-address').value=document.getElementById('n-customer-address').value;
+  }
+}
+
+function toggleSameAddress(){
+  const chk=document.getElementById('n-same-address');
+  const wa=document.getElementById('n-address');
+  if(chk.checked){
+    wa.value=document.getElementById('n-customer-address').value;
+    wa.readOnly=true;wa.style.background='#f5f5f5';wa.style.color='#888';
+  }else{
+    wa.readOnly=false;wa.style.background='';wa.style.color='';wa.value='';
+  }
+}
+
+function toggleEditSameAddress(){
+  const chk=document.getElementById('ed-same-address');
+  const wa=document.getElementById('ed-address');
+  if(chk.checked){
+    wa.value=document.getElementById('ed-customer-address').value;
+    wa.readOnly=true;wa.style.background='#f5f5f5';wa.style.color='#888';
+  }else{
+    wa.readOnly=false;wa.style.background='';wa.style.color='';
+  }
+}
+
+function showHopeRef(c){
+  const sp1=document.getElementById('sp1-hope-ref');
+  const sp3=document.getElementById('sp3-hope-ref');
+  if(c.hope1||c.hope1time){
+    sp1.style.display='block';
+    sp1.textContent='📅 見積もり希望：'+(c.hope1||'')+(c.hope1time?' '+c.hope1time:'');
+  }else{sp1.style.display='none';}
+  if(c.hope2||c.hope2time){
+    sp3.style.display='block';
+    sp3.textContent='📅 作業希望：'+(c.hope2||'')+(c.hope2time?' '+c.hope2time:'');
+  }else{sp3.style.display='none';}
 }
 
 function toggleEdit(editing){
@@ -515,7 +574,12 @@ function toggleEdit(editing){
     document.getElementById('ed-name').value=c.name||'';
     document.getElementById('ed-tel').value=c.tel||'';
     document.getElementById('ed-customer-address').value=c.customerAddress||'';
-    document.getElementById('ed-address').value=c.address||'';
+    document.getElementById('ed-same-address').checked=c.sameAddress||false;
+    const wa=document.getElementById('ed-address');
+    wa.value=c.sameAddress?(c.customerAddress||''):(c.address||'');
+    wa.readOnly=c.sameAddress||false;
+    wa.style.background=c.sameAddress?'#f5f5f5':'';
+    wa.style.color=c.sameAddress?'#888':'';
     document.getElementById('ed-building').value=c.building||'';
     document.getElementById('ed-floor').value=c.floor||'';
     document.getElementById('ed-items').value=c.items||'';
@@ -523,7 +587,9 @@ function toggleEdit(editing){
     document.getElementById('ed-photo').value=c.photo||'';
     document.getElementById('ed-time').value=c.time||'';
     document.getElementById('ed-hope1').value=c.hope1||'';
+    document.getElementById('ed-hope1-time').value=c.hope1time||'';
     document.getElementById('ed-hope2').value=c.hope2||'';
+    document.getElementById('ed-hope2-time').value=c.hope2time||'';
     document.getElementById('ed-memo').value=c.memo||'';
     const types=(c.type||'').split('・');
     document.querySelectorAll('.ed-type').forEach(cb=>{cb.checked=types.includes(cb.value);});
@@ -538,7 +604,8 @@ function saveEdit(){
   c.name=document.getElementById('ed-name').value.trim();
   c.tel=document.getElementById('ed-tel').value.trim();
   c.customerAddress=document.getElementById('ed-customer-address').value;
-  c.address=document.getElementById('ed-address').value;
+  c.sameAddress=document.getElementById('ed-same-address').checked;
+  c.address=c.sameAddress?c.customerAddress:document.getElementById('ed-address').value;
   c.building=document.getElementById('ed-building').value;
   c.floor=document.getElementById('ed-floor').value;
   c.type=[...document.querySelectorAll('.ed-type:checked')].map(cb=>cb.value).join('・');
@@ -547,21 +614,34 @@ function saveEdit(){
   c.photo=document.getElementById('ed-photo').value;
   c.time=document.getElementById('ed-time').value;
   c.hope1=document.getElementById('ed-hope1').value;
+  c.hope1time=document.getElementById('ed-hope1-time').value;
   c.hope2=document.getElementById('ed-hope2').value;
+  c.hope2time=document.getElementById('ed-hope2-time').value;
   c.memo=document.getElementById('ed-memo').value;
   c.synced=false;
   saveToSheet(c);
   toggleEdit(false);
-  // 表示を更新
   document.getElementById('d-name').textContent=c.name+' 様';
   document.getElementById('sp0-info').innerHTML=buildInfoHtml(c);
+  showHopeRef(c);
   const s0=document.getElementById('btn-sheet-0');
   s0.textContent='管理シートに転記する';s0.style.background='';s0.style.color='';s0.disabled=false;
   showToast('toast-sheet','変更を保存しました。再転記してください。','info');
 }
 
 function buildInfoHtml(c){
-  return [['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],['お客様名',c.name],['電話番号',c.tel],['お客様住所',c.customerAddress],['作業場所',c.sameAddress?'お客様住所と同じ':c.address],['建物種別',c.building],['階数・間取り',c.floor],['作業種別',c.type],['品目・量',c.items],['特記事項',c.notes],['事前写真',c.photo],['希望日①',c.hope1],['希望日②',c.hope2],['希望時間帯',c.time],['担当メモ',c.memo]].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
+  return [
+    ['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],
+    ['お客様名',c.name],['電話番号',c.tel],
+    ['お客様住所',c.customerAddress],
+    ['作業場所',c.sameAddress?'お客様住所と同じ':c.address],
+    ['建物種別',c.building],['階数・間取り',c.floor],
+    ['作業種別',c.type],['品目・量',c.items],
+    ['特記事項',c.notes],['事前写真',c.photo],
+    ['見積もり希望日時',(c.hope1||'')+(c.hope1time?' '+c.hope1time:'')],
+    ['作業希望日時',(c.hope2||'')+(c.hope2time?' '+c.hope2time:'')],
+    ['希望時間帯',c.time],['担当メモ',c.memo]
+  ].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
 }
 
 function deleteCase(){
@@ -575,13 +655,7 @@ function deleteCase(){
 }
 
 function genId(){const d=new Date();return 'MU-'+String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0')+String(caseCounter).padStart(3,'0');}
-function toggleSameAddress(){
-  const chk=document.getElementById('n-same-address');
-  const wa=document.getElementById('n-address');
-  if(chk.checked){wa.value=document.getElementById('n-customer-address').value;wa.readOnly=true;wa.style.background='#f5f5f5';document.getElementById('n-customer-address').addEventListener('input',syncAddress);}
-  else{wa.readOnly=false;wa.style.background='';document.getElementById('n-customer-address').removeEventListener('input',syncAddress);}
-}
-function syncAddress(){if(document.getElementById('n-same-address').checked)document.getElementById('n-address').value=document.getElementById('n-customer-address').value;}
+
 function updateCalUrls(){
   const c=cases.find(x=>x.id===currentId);if(!c)return;
   const compE=(document.getElementById('company-estimate').value||'').trim()||'便利屋むすび';
@@ -591,11 +665,13 @@ function updateCalUrls(){
   if(ec&&!c.estimateCalSynced){const d=c.stepData&&c.stepData[1]||{};ec.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compE,name:c.name,type:'見積もり',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.time||'10:00',crew:'',vehicle:'',partner:'',prep:'見積もり訪問'}).toString();}
   if(wc&&!c.calendarSynced){const d=c.stepData&&c.stepData[3]||{};wc.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compW,name:c.name,type:c.type||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.start||'09:00',crew:d.crew||'',vehicle:d.vehicle||'',partner:d.partner||'',prep:d.prep||''}).toString();}
 }
+
 function confirmDone(type){
   const c=cases.find(x=>x.id===currentId);if(!c)return;
   if(type==='estimateCal'){c.estimateCalSynced=true;saveToSheet(c);document.getElementById('btn-estimate-cal-confirm').style.display='none';const b=document.getElementById('btn-estimate-cal');b.innerHTML='✓ 見積もり登録済み';b.classList.add('done');b.removeAttribute('href');showToast('toast-1','カレンダー登録完了としました','ok');}
   if(type==='workCal'){c.calendarSynced=true;saveToSheet(c);document.getElementById('btn-work-cal-confirm').style.display='none';const b=document.getElementById('btn-work-cal');b.innerHTML='✓ 作業日登録済み';b.classList.add('done');b.removeAttribute('href');showToast('toast-3','カレンダー登録完了としました','ok');}
 }
+
 function showPage(p){
   document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
@@ -603,11 +679,13 @@ function showPage(p){
   if(p==='list'){document.querySelectorAll('.nav-btn')[0].classList.add('active');renderList();renderStats();}
   if(p==='new'){document.querySelectorAll('.nav-btn')[1].classList.add('active');initNew();}
 }
+
 function renderStats(){
   const total=cases.length,active=cases.filter(c=>c.stepIndex<8).length,done=cases.filter(c=>c.stepIndex>=8).length;
   const n=new Date(),thisMonth=cases.filter(c=>{const d=new Date(c.date);return d.getMonth()===n.getMonth()&&d.getFullYear()===n.getFullYear();}).length;
   document.getElementById('stat-grid').innerHTML=`<div class="stat-card"><div class="stat-num">${total}</div><div class="stat-lbl">総案件数</div></div><div class="stat-card"><div class="stat-num" style="color:#0C447C">${active}</div><div class="stat-lbl">対応中</div></div><div class="stat-card"><div class="stat-num" style="color:#085041">${done}</div><div class="stat-lbl">完了</div></div><div class="stat-card"><div class="stat-num" style="color:#633806">${thisMonth}</div><div class="stat-lbl">今月受付</div></div>`;
 }
+
 function renderList(){
   const q=(document.getElementById('search-input').value||'').toLowerCase();
   let list=cases.filter(c=>!q||c.name.toLowerCase().includes(q)||c.id.toLowerCase().includes(q)||(c.address||'').toLowerCase().includes(q)).slice().reverse();
@@ -619,31 +697,61 @@ function renderList(){
     return `<div class="case-card" onclick="openDetail('${c.id}')"><div class="case-card-header"><div><div class="case-name">${c.name} 様${syncedMark}</div><div style="font-size:12px;color:#666">${c.id} ・ ${c.date}</div></div><span class="badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span></div><div class="case-meta">${c.type||''} ${c.address?'/ '+c.address:''}</div><div class="progress-bar">${bars}</div></div>`;
   }).join('');
 }
+
 function initNew(){
   document.getElementById('n-id').value=genId();
   document.getElementById('n-date').value=new Date().toISOString().split('T')[0];
-  const wa=document.getElementById('n-address');wa.readOnly=false;wa.style.background='';
-  document.getElementById('n-same-address').checked=false;
+  document.getElementById('n-same-address').checked=true;
+  const wa=document.getElementById('n-address');
+  wa.readOnly=true;wa.style.background='#f5f5f5';wa.style.color='#888';wa.value='';
+  document.getElementById('n-staff').value='';
 }
+
 function clearNew(){
-  ['n-name','n-tel','n-customer-address','n-address','n-floor','n-items','n-notes','n-memo','n-hope1','n-hope2','n-staff'].forEach(id=>document.getElementById(id).value='');
-  ['n-channel','n-building','n-time','n-photo'].forEach(id=>document.getElementById(id).value='');
+  ['n-name','n-tel','n-customer-address','n-address','n-floor','n-items','n-notes','n-memo','n-hope1','n-hope1-time','n-hope2','n-hope2-time'].forEach(id=>document.getElementById(id).value='');
+  ['n-channel','n-staff','n-building','n-time','n-photo'].forEach(id=>document.getElementById(id).value='');
   document.querySelectorAll('.n-type').forEach(c=>c.checked=false);
   document.getElementById('n-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('n-same-address').checked=false;
+  document.getElementById('n-same-address').checked=true;
+  const wa=document.getElementById('n-address');wa.readOnly=true;wa.style.background='#f5f5f5';wa.style.color='#888';
   document.getElementById('new-toast').className='toast';
 }
+
 function saveNew(){
   const name=document.getElementById('n-name').value.trim();
   const tel=document.getElementById('n-tel').value.trim();
   const date=document.getElementById('n-date').value;
   const type=[...document.querySelectorAll('.n-type:checked')].map(c=>c.value).join('・');
   if(!name||!tel||!date||!type){showToast('new-toast','必須項目（受付日・お客様名・電話番号・作業種別）を入力してください','err');return;}
-  const c={id:document.getElementById('n-id').value,date,channel:document.getElementById('n-channel').value,staff:document.getElementById('n-staff').value,name,tel,customerAddress:document.getElementById('n-customer-address').value,address:document.getElementById('n-address').value,sameAddress:document.getElementById('n-same-address').checked,building:document.getElementById('n-building').value,floor:document.getElementById('n-floor').value,type,items:document.getElementById('n-items').value,notes:document.getElementById('n-notes').value,photo:document.getElementById('n-photo').value,time:document.getElementById('n-time').value,hope1:document.getElementById('n-hope1').value,hope2:document.getElementById('n-hope2').value,memo:document.getElementById('n-memo').value,stepIndex:0,stepData:{},synced:false,calendarSynced:false,estimateCalSynced:false,doneSynced:false};
+  const sameAddr=document.getElementById('n-same-address').checked;
+  const customerAddr=document.getElementById('n-customer-address').value;
+  const c={
+    id:document.getElementById('n-id').value,date,
+    channel:document.getElementById('n-channel').value,
+    staff:document.getElementById('n-staff').value,
+    name,tel,
+    customerAddress:customerAddr,
+    address:sameAddr?customerAddr:document.getElementById('n-address').value,
+    sameAddress:sameAddr,
+    building:document.getElementById('n-building').value,
+    floor:document.getElementById('n-floor').value,
+    type,
+    items:document.getElementById('n-items').value,
+    notes:document.getElementById('n-notes').value,
+    photo:document.getElementById('n-photo').value,
+    time:document.getElementById('n-time').value,
+    hope1:document.getElementById('n-hope1').value,
+    hope1time:document.getElementById('n-hope1-time').value,
+    hope2:document.getElementById('n-hope2').value,
+    hope2time:document.getElementById('n-hope2-time').value,
+    memo:document.getElementById('n-memo').value,
+    stepIndex:0,stepData:{},synced:false,calendarSynced:false,estimateCalSynced:false,doneSynced:false
+  };
   cases.push(c);caseCounter++;saveToSheet(c);
   showToast('new-toast',`${name} 様の案件を登録しました`,'ok');
   setTimeout(()=>{clearNew();showPage('list');},1200);
 }
+
 function openDetail(id){
   currentId=id;
   const c=cases.find(x=>x.id===id);if(!c)return;
@@ -653,6 +761,7 @@ function openDetail(id){
   document.getElementById('d-badge').innerHTML=`<span class="badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span>`;
   document.getElementById('step-nav').innerHTML=STEPS.map((s,i)=>`<button class="step-btn ${i===0?'active':''} ${i<c.stepIndex?'done':''}" onclick="showStep(${i})">${i<c.stepIndex?'✓ ':''} ${s}</button>`).join('');
   document.getElementById('sp0-info').innerHTML=buildInfoHtml(c);
+  showHopeRef(c);
   const s0=document.getElementById('btn-sheet-0');
   if(c.synced){s0.textContent='✓ 転記済み';s0.style.background='#9FE1CB';s0.style.color='#085041';s0.disabled=true;}
   else{s0.textContent='管理シートに転記する';s0.style.background='';s0.style.color='';s0.disabled=false;}
@@ -673,20 +782,43 @@ function openDetail(id){
   document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
   document.getElementById('page-detail').classList.add('active');
 }
+
 function loadStepData(c){
   const d=c.stepData||{};
-  if(d[1]){document.getElementById('e-method').value=d[1].method||'';document.getElementById('e-date').value=d[1].date||'';document.getElementById('e-time').value=d[1].time||'10:00';document.getElementById('e-amount').value=d[1].amount||'';document.getElementById('e-breakdown').value=d[1].breakdown||'';document.getElementById('e-memo').value=d[1].memo||'';}
+  if(d[1]){
+    document.getElementById('e-method').value=d[1].method||'';
+    document.getElementById('e-date').value=d[1].date||c.hope1||'';
+    document.getElementById('e-time').value=d[1].time||c.hope1time||'10:00';
+    document.getElementById('e-amount').value=d[1].amount||'';
+    document.getElementById('e-breakdown').value=d[1].breakdown||'';
+    document.getElementById('e-memo').value=d[1].memo||'';
+  } else {
+    document.getElementById('e-date').value=c.hope1||'';
+    document.getElementById('e-time').value=c.hope1time||'10:00';
+  }
   if(d[2]){['c-amount','c-date','c-contact','c-notes'].forEach(id=>{const k=id.replace('c-','');if(d[2][k])document.getElementById(id).value=d[2][k];});}
-  if(d[3]){document.getElementById('w-date').value=d[3].date||'';document.getElementById('w-start').value=d[3].start||'09:00';document.getElementById('w-crew').value=d[3].crew||'';document.getElementById('w-vehicle').value=d[3].vehicle||'';document.getElementById('w-prep').value=d[3].prep||'';document.getElementById('w-partner').value=d[3].partner||'';}
+  if(d[3]){
+    document.getElementById('w-date').value=d[3].date||'';
+    document.getElementById('w-start').value=d[3].start||'09:00';
+    document.getElementById('w-crew').value=d[3].crew||'';
+    document.getElementById('w-vehicle').value=d[3].vehicle||'';
+    document.getElementById('w-prep').value=d[3].prep||'';
+    document.getElementById('w-partner').value=d[3].partner||'';
+  } else {
+    document.getElementById('w-date').value=c.hope2||'';
+    document.getElementById('w-start').value=c.hope2time||'09:00';
+  }
   if(d[5]){['wk-start','wk-end','wk-detail','wk-extra'].forEach(id=>{const k=id.replace('wk-','');if(d[5][k])document.getElementById(id).value=d[5][k];});}
   if(d[6]){document.getElementById('done-date').value=d[6].date||'';document.getElementById('done-amount').value=d[6].amount||'';document.getElementById('done-pay').value=d[6].pay||'';document.getElementById('done-paydate').value=d[6].paydate||'';document.getElementById('done-memo').value=d[6].memo||'';}
   if(d[8]){['af-date','af-method','af-content','af-result','af-repeat'].forEach(id=>{const k=id.replace('af-','');if(d[8][k])document.getElementById(id).value=d[8][k];});}
 }
+
 function showStep(i){
   document.querySelectorAll('.step-page').forEach(el=>el.classList.remove('active'));
   document.getElementById('sp-'+i).classList.add('active');
   document.querySelectorAll('.step-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
 }
+
 function saveStep(stepIdx){
   const c=cases.find(x=>x.id===currentId);if(!c)return;
   if(!c.stepData)c.stepData={};
@@ -706,6 +838,7 @@ function saveStep(stepIdx){
   document.getElementById('step-nav').innerHTML=STEPS.map((s,i)=>`<button class="step-btn ${i===stepIdx?'active':''} ${i<stepIdx?'done':''}" onclick="showStep(${i})">${i<stepIdx?'✓ ':''} ${s}</button>`).join('');
   showToast('toast-'+stepIdx,'保存しました。次のステップへ進む場合は上のタブを選んでください。','ok');
 }
+
 function showToast(id,msg,type){
   const t=document.getElementById(id);if(!t)return;
   t.textContent=msg;t.className='toast show '+type;
