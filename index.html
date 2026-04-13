@@ -204,6 +204,7 @@ textarea{resize:vertical;min-height:60px}
     <div class="step-nav" id="step-nav"></div>
 
     <div id="sp-0" class="step-page active">
+      <!-- 表示モード -->
       <div id="sp0-view">
         <div class="section">
           <div class="sec-title">
@@ -216,6 +217,7 @@ textarea{resize:vertical;min-height:60px}
         <button class="btn-danger" onclick="deleteCase()">この案件を削除する</button>
         <div class="toast" id="toast-sheet"></div>
       </div>
+      <!-- 編集モード -->
       <div id="sp0-edit" style="display:none">
         <div class="section">
           <div class="sec-title">
@@ -230,8 +232,8 @@ textarea{resize:vertical;min-height:60px}
           </div>
           <div class="field"><div class="lbl">担当者</div><input type="text" id="ed-staff" placeholder="氏名"></div>
           <div class="row2">
-            <div class="field"><div class="lbl">お客様名</div><input type="text" id="ed-name"></div>
-            <div class="field"><div class="lbl">電話番号</div><input type="tel" id="ed-tel"></div>
+            <div class="field"><div class="lbl">お客様名</div><input type="text" id="ed-name" placeholder="山田 太郎"></div>
+            <div class="field"><div class="lbl">電話番号</div><input type="tel" id="ed-tel" placeholder="090-XXXX-XXXX"></div>
           </div>
           <div class="field"><div class="lbl">お客様住所</div><input type="text" id="ed-customer-address"></div>
           <div class="field"><div class="lbl">作業場所</div><input type="text" id="ed-address"></div>
@@ -550,6 +552,7 @@ function saveEdit(){
   c.synced=false;
   saveToSheet(c);
   toggleEdit(false);
+  // 表示を更新
   document.getElementById('d-name').textContent=c.name+' 様';
   document.getElementById('sp0-info').innerHTML=buildInfoHtml(c);
   const s0=document.getElementById('btn-sheet-0');
