@@ -17,13 +17,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .nav-btn.active{color:#0F6E56;border-bottom-color:#0F6E56;font-weight:500}
 .page{display:none}.page.active{display:block}
 .section{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.sec-title{font-size:12px;font-weight:500;color:#666;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid #e0e0e0}
+.sec-title{font-size:12px;font-weight:500;color:#666;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid #e0e0e0;display:flex;justify-content:space-between;align-items:center}
+.edit-btn{font-size:11px;padding:3px 10px;border-radius:6px;border:0.5px solid #ccc;background:#fff;color:#666;cursor:pointer}
+.edit-btn.active{background:#E1F5EE;border-color:#5DCAA5;color:#085041}
 .field{margin-bottom:10px}.field:last-child{margin-bottom:0}
 .lbl{font-size:12px;color:#666;margin-bottom:3px;display:flex;align-items:center;gap:4px}
 .req{font-size:10px;background:#FAECE7;color:#993C1D;padding:1px 5px;border-radius:4px}
 input[type=text],input[type=tel],input[type=date],input[type=number],input[type=time],select,textarea{width:100%;border:0.5px solid #ccc;border-radius:8px;padding:7px 10px;font-size:13px;color:#1a1a1a;background:#fff;font-family:inherit}
 input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75}
-input[readonly]{background:#f5f5f5;color:#888}
+input[readonly],input[disabled],select[disabled],textarea[disabled]{background:#f5f5f5;color:#888;pointer-events:none}
 textarea{resize:vertical;min-height:60px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .cb-group{display:flex;flex-wrap:wrap;gap:8px}
@@ -202,10 +204,71 @@ textarea{resize:vertical;min-height:60px}
     <div class="step-nav" id="step-nav"></div>
 
     <div id="sp-0" class="step-page active">
-      <div class="section"><div class="sec-title">受付・お客様情報</div><div id="sp0-info"></div></div>
-      <button id="btn-sheet-0" class="btn-primary" onclick="syncSheet()" style="margin-top:8px">管理シートに転記する</button>
-      <button class="btn-danger" onclick="deleteCase()">この案件を削除する</button>
-      <div class="toast" id="toast-sheet"></div>
+      <div id="sp0-view">
+        <div class="section">
+          <div class="sec-title">
+            受付・お客様情報
+            <button class="edit-btn" onclick="toggleEdit(true)">編集する</button>
+          </div>
+          <div id="sp0-info"></div>
+        </div>
+        <button id="btn-sheet-0" class="btn-primary" onclick="syncSheet()" style="margin-top:8px">管理シートに転記する</button>
+        <button class="btn-danger" onclick="deleteCase()">この案件を削除する</button>
+        <div class="toast" id="toast-sheet"></div>
+      </div>
+      <div id="sp0-edit" style="display:none">
+        <div class="section">
+          <div class="sec-title">
+            受付情報を編集
+            <button class="edit-btn active" onclick="toggleEdit(false)">キャンセル</button>
+          </div>
+          <div class="row2">
+            <div class="field"><div class="lbl">受付日</div><input type="date" id="ed-date"></div>
+            <div class="field"><div class="lbl">受付方法</div>
+              <select id="ed-channel"><option value="">選択</option><option>電話</option><option>LINE</option><option>紹介</option><option>チラシ</option><option>その他</option></select>
+            </div>
+          </div>
+          <div class="field"><div class="lbl">担当者</div><input type="text" id="ed-staff" placeholder="氏名"></div>
+          <div class="row2">
+            <div class="field"><div class="lbl">お客様名</div><input type="text" id="ed-name"></div>
+            <div class="field"><div class="lbl">電話番号</div><input type="tel" id="ed-tel"></div>
+          </div>
+          <div class="field"><div class="lbl">お客様住所</div><input type="text" id="ed-customer-address"></div>
+          <div class="field"><div class="lbl">作業場所</div><input type="text" id="ed-address"></div>
+          <div class="row2">
+            <div class="field"><div class="lbl">建物種別</div>
+              <select id="ed-building"><option value="">選択</option><option>一戸建て</option><option>マンション</option><option>アパート</option><option>店舗・事務所</option><option>倉庫・車庫</option><option>その他</option></select>
+            </div>
+            <div class="field"><div class="lbl">階数・間取り</div><input type="text" id="ed-floor"></div>
+          </div>
+          <div class="field"><div class="lbl">作業種別</div>
+            <div class="cb-group">
+              <label class="cb-item"><input type="checkbox" class="ed-type" value="不用品回収"> 不用品回収</label>
+              <label class="cb-item"><input type="checkbox" class="ed-type" value="片づけ"> 片づけ</label>
+              <label class="cb-item"><input type="checkbox" class="ed-type" value="遺品整理"> 遺品整理</label>
+              <label class="cb-item"><input type="checkbox" class="ed-type" value="引越し支援"> 引越し支援</label>
+              <label class="cb-item"><input type="checkbox" class="ed-type" value="その他"> その他</label>
+            </div>
+          </div>
+          <div class="field"><div class="lbl">品目・量の概要</div><textarea id="ed-items"></textarea></div>
+          <div class="field"><div class="lbl">特記事項</div><textarea id="ed-notes"></textarea></div>
+          <div class="row2">
+            <div class="field"><div class="lbl">事前写真</div>
+              <select id="ed-photo"><option value="">選択</option><option>あり（送付済）</option><option>あり（送付待ち）</option><option>なし</option></select>
+            </div>
+            <div class="field"><div class="lbl">希望時間帯</div>
+              <select id="ed-time"><option value="">選択</option><option>午前（〜12時）</option><option>午後（12時〜）</option><option>指定なし</option></select>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field"><div class="lbl">希望日①</div><input type="date" id="ed-hope1"></div>
+            <div class="field"><div class="lbl">希望日②</div><input type="date" id="ed-hope2"></div>
+          </div>
+          <div class="field"><div class="lbl">担当メモ</div><textarea id="ed-memo"></textarea></div>
+        </div>
+        <button class="btn-primary" onclick="saveEdit()">変更を保存する</button>
+        <div class="toast" id="toast-edit"></div>
+      </div>
     </div>
 
     <div id="sp-1" class="step-page">
@@ -439,6 +502,65 @@ async function syncDone(){
   }
 }
 
+function toggleEdit(editing){
+  document.getElementById('sp0-view').style.display=editing?'none':'block';
+  document.getElementById('sp0-edit').style.display=editing?'block':'none';
+  if(editing){
+    const c=cases.find(x=>x.id===currentId);if(!c)return;
+    document.getElementById('ed-date').value=c.date||'';
+    document.getElementById('ed-channel').value=c.channel||'';
+    document.getElementById('ed-staff').value=c.staff||'';
+    document.getElementById('ed-name').value=c.name||'';
+    document.getElementById('ed-tel').value=c.tel||'';
+    document.getElementById('ed-customer-address').value=c.customerAddress||'';
+    document.getElementById('ed-address').value=c.address||'';
+    document.getElementById('ed-building').value=c.building||'';
+    document.getElementById('ed-floor').value=c.floor||'';
+    document.getElementById('ed-items').value=c.items||'';
+    document.getElementById('ed-notes').value=c.notes||'';
+    document.getElementById('ed-photo').value=c.photo||'';
+    document.getElementById('ed-time').value=c.time||'';
+    document.getElementById('ed-hope1').value=c.hope1||'';
+    document.getElementById('ed-hope2').value=c.hope2||'';
+    document.getElementById('ed-memo').value=c.memo||'';
+    const types=(c.type||'').split('・');
+    document.querySelectorAll('.ed-type').forEach(cb=>{cb.checked=types.includes(cb.value);});
+  }
+}
+
+function saveEdit(){
+  const c=cases.find(x=>x.id===currentId);if(!c)return;
+  c.date=document.getElementById('ed-date').value;
+  c.channel=document.getElementById('ed-channel').value;
+  c.staff=document.getElementById('ed-staff').value;
+  c.name=document.getElementById('ed-name').value.trim();
+  c.tel=document.getElementById('ed-tel').value.trim();
+  c.customerAddress=document.getElementById('ed-customer-address').value;
+  c.address=document.getElementById('ed-address').value;
+  c.building=document.getElementById('ed-building').value;
+  c.floor=document.getElementById('ed-floor').value;
+  c.type=[...document.querySelectorAll('.ed-type:checked')].map(cb=>cb.value).join('・');
+  c.items=document.getElementById('ed-items').value;
+  c.notes=document.getElementById('ed-notes').value;
+  c.photo=document.getElementById('ed-photo').value;
+  c.time=document.getElementById('ed-time').value;
+  c.hope1=document.getElementById('ed-hope1').value;
+  c.hope2=document.getElementById('ed-hope2').value;
+  c.memo=document.getElementById('ed-memo').value;
+  c.synced=false;
+  saveToSheet(c);
+  toggleEdit(false);
+  document.getElementById('d-name').textContent=c.name+' 様';
+  document.getElementById('sp0-info').innerHTML=buildInfoHtml(c);
+  const s0=document.getElementById('btn-sheet-0');
+  s0.textContent='管理シートに転記する';s0.style.background='';s0.style.color='';s0.disabled=false;
+  showToast('toast-sheet','変更を保存しました。再転記してください。','info');
+}
+
+function buildInfoHtml(c){
+  return [['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],['お客様名',c.name],['電話番号',c.tel],['お客様住所',c.customerAddress],['作業場所',c.sameAddress?'お客様住所と同じ':c.address],['建物種別',c.building],['階数・間取り',c.floor],['作業種別',c.type],['品目・量',c.items],['特記事項',c.notes],['事前写真',c.photo],['希望日①',c.hope1],['希望日②',c.hope2],['希望時間帯',c.time],['担当メモ',c.memo]].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
+}
+
 function deleteCase(){
   const c=cases.find(x=>x.id===currentId);if(!c)return;
   if(!confirm(c.name+' 様の案件を削除しますか？\nこの操作は取り消せません。'))return;
@@ -522,11 +644,12 @@ function saveNew(){
 function openDetail(id){
   currentId=id;
   const c=cases.find(x=>x.id===id);if(!c)return;
+  toggleEdit(false);
   document.getElementById('d-name').textContent=c.name+' 様';
   document.getElementById('d-id').textContent=c.id+' ・ 受付日: '+c.date;
   document.getElementById('d-badge').innerHTML=`<span class="badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span>`;
   document.getElementById('step-nav').innerHTML=STEPS.map((s,i)=>`<button class="step-btn ${i===0?'active':''} ${i<c.stepIndex?'done':''}" onclick="showStep(${i})">${i<c.stepIndex?'✓ ':''} ${s}</button>`).join('');
-  document.getElementById('sp0-info').innerHTML=[['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],['お客様名',c.name],['電話番号',c.tel],['お客様住所',c.customerAddress],['作業場所',c.sameAddress?'お客様住所と同じ':c.address],['建物種別',c.building],['階数・間取り',c.floor],['作業種別',c.type],['品目・量',c.items],['特記事項',c.notes],['事前写真',c.photo],['希望日①',c.hope1],['希望日②',c.hope2],['希望時間帯',c.time],['担当メモ',c.memo]].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
+  document.getElementById('sp0-info').innerHTML=buildInfoHtml(c);
   const s0=document.getElementById('btn-sheet-0');
   if(c.synced){s0.textContent='✓ 転記済み';s0.style.background='#9FE1CB';s0.style.color='#085041';s0.disabled=true;}
   else{s0.textContent='管理シートに転記する';s0.style.background='';s0.style.color='';s0.disabled=false;}
