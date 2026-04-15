@@ -43,6 +43,7 @@ textarea{resize:vertical;min-height:60px}
 .btn-link.done{border-color:#9FE1CB;color:#9FE1CB;cursor:default;pointer-events:none}
 .btn-link.blue{border-color:#185FA5;color:#185FA5}
 .btn-link.blue.done{border-color:#B5D4F4;color:#B5D4F4}
+.btn-link.orange{border-color:#E07B39;color:#E07B39}
 .btn-row{display:flex;gap:8px;margin-top:1rem}
 .toast{display:none;border-radius:8px;padding:9px 12px;font-size:13px;margin-top:10px}
 .toast.show{display:block}
@@ -93,10 +94,12 @@ textarea{resize:vertical;min-height:60px}
 .loading-overlay.show{display:flex}
 .loading-spinner{width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#1D9E75;border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.nav-links{display:flex;gap:8px;margin-bottom:1rem}
+.nav-link{flex:1;padding:8px;border-radius:8px;border:0.5px solid #e0e0e0;background:#fff;color:#666;font-size:12px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px}
+.nav-link:hover{border-color:#1D9E75;color:#0F6E56}
 </style>
 </head>
 <body>
-
 <div id="loading-overlay" class="loading-overlay">
   <div class="loading-spinner"></div>
   <div style="font-size:13px;color:#666">データを読み込み中...</div>
@@ -110,6 +113,12 @@ textarea{resize:vertical;min-height:60px}
       <div class="app-sub" id="sync-status">データを読み込み中...</div>
     </div>
   </div>
+
+  <div class="nav-links">
+    <a href="index.html" class="nav-link" style="border-color:#1D9E75;color:#0F6E56;font-weight:500">📋 案件管理</a>
+    <a href="schedule.html" class="nav-link">📅 スケジュール</a>
+  </div>
+
   <div class="nav">
     <button class="nav-btn active" onclick="showPage('list')">案件一覧</button>
     <button class="nav-btn" onclick="showPage('new')">新規受付</button>
@@ -216,10 +225,7 @@ textarea{resize:vertical;min-height:60px}
     <div id="sp-0" class="step-page active">
       <div id="sp0-view">
         <div class="section">
-          <div class="sec-title">
-            受付・お客様情報
-            <button class="edit-btn" onclick="toggleEdit(true)">編集する</button>
-          </div>
+          <div class="sec-title">受付・お客様情報<button class="edit-btn" onclick="toggleEdit(true)">編集する</button></div>
           <div id="sp0-info"></div>
         </div>
         <button id="btn-sheet-0" class="btn-primary" onclick="syncSheet()" style="margin-top:8px">管理シートに転記する</button>
@@ -228,10 +234,7 @@ textarea{resize:vertical;min-height:60px}
       </div>
       <div id="sp0-edit" style="display:none">
         <div class="section">
-          <div class="sec-title">
-            受付情報を編集
-            <button class="edit-btn active" onclick="toggleEdit(false)">キャンセル</button>
-          </div>
+          <div class="sec-title">受付情報を編集<button class="edit-btn active" onclick="toggleEdit(false)">キャンセル</button></div>
           <div class="row2">
             <div class="field"><div class="lbl">受付日</div><input type="date" id="ed-date"></div>
             <div class="field"><div class="lbl">受付方法</div>
@@ -400,6 +403,9 @@ textarea{resize:vertical;min-height:60px}
         </div>
       </div>
       <button class="btn-primary" onclick="saveStep(5)">作業記録を保存</button>
+      <a id="btn-koseitei" class="btn-link orange" style="margin-top:8px" href="#">
+        📋 片付け工程表を開く
+      </a>
       <div class="toast" id="toast-5"></div>
     </div>
 
@@ -433,7 +439,7 @@ textarea{resize:vertical;min-height:60px}
           <label class="cb-item"><input type="checkbox" class="after-check"> スプレッドシートへの転記確認</label>
           <label class="cb-item"><input type="checkbox" class="after-check"> 写真の整理・保存</label>
         </div>
-        <div class="field" style="margin-top:10px"><div class="lbl">後始末メモ</div><textarea id="after-memo" placeholder="次回に活かせる改善点など"></textarea></div>
+        <div class="field" style="margin-top:10px"><div class="lbl">後始末メモ</div><textarea id="after-memo"></textarea></div>
       </div>
       <button class="btn-primary" onclick="saveStep(7)">後始末を記録する</button>
       <div class="toast" id="toast-7"></div>
@@ -449,7 +455,7 @@ textarea{resize:vertical;min-height:60px}
           </div>
         </div>
         <div class="field"><div class="lbl">フォロー内容</div><textarea id="af-content"></textarea></div>
-        <div class="field"><div class="lbl">お客様の反応・次回につながる情報</div><textarea id="af-result"></textarea></div>
+        <div class="field"><div class="lbl">お客様の反応</div><textarea id="af-result"></textarea></div>
         <div class="field"><div class="lbl">紹介・リピート見込み</div>
           <select id="af-repeat"><option value="">選択</option><option>高い</option><option>普通</option><option>低い</option></select>
         </div>
@@ -461,7 +467,7 @@ textarea{resize:vertical;min-height:60px}
 </div>
 
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbyjev2XYgrdjVUhRBei61W6viBOm0ho0DfFK7ugPkHcD_HUfPOhrDeXvxGjVeR09yJI/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbxtbt9e73FSLimNnC0x1dqVSm267ijjjRbMsaMkhztXAUw0TFBlUXEvIG7K4OcDfjjo/exec';
 const STEPS=['問い合わせ','見積もり','見積確定','作業日確定','作業準備','作業','完了報告','後始末','アフター'];
 const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
 const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
@@ -542,7 +548,6 @@ function toggleEditSameAddress(){
 }
 
 function getEstimateDate(c){
-  // 確定見積もり日 > 見積もりタブ保存日 > 希望日 の優先順で返す
   if(c.stepData&&c.stepData[1]&&c.stepData[1].date)return c.stepData[1].date;
   if(c.hope1)return c.hope1+'(希望)';
   return null;
@@ -557,9 +562,9 @@ function showHopeRef(c){
   const sp1=document.getElementById('sp1-hope-ref');
   const sp3=document.getElementById('sp3-hope-ref');
   if(c.hope1||c.hope1time){sp1.style.display='block';sp1.textContent='📅 見積もり希望：'+(c.hope1||'')+(c.hope1time?' '+c.hope1time:'');}
-  else{sp1.style.display='none';}
+  else sp1.style.display='none';
   if(c.hope2||c.hope2time){sp3.style.display='block';sp3.textContent='📅 作業希望：'+(c.hope2||'')+(c.hope2time?' '+c.hope2time:'');}
-  else{sp3.style.display='none';}
+  else sp3.style.display='none';
 }
 
 function toggleEdit(editing){
@@ -627,18 +632,7 @@ function saveEdit(){
 }
 
 function buildInfoHtml(c){
-  return [
-    ['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],
-    ['お客様名',c.name],['電話番号',c.tel],
-    ['お客様住所',c.customerAddress],
-    ['作業場所',c.sameAddress?'お客様住所と同じ':c.address],
-    ['建物種別',c.building],['階数・間取り',c.floor],
-    ['作業種別',c.type],['品目・量',c.items],
-    ['特記事項',c.notes],['事前写真',c.photo],
-    ['見積もり希望日時',(c.hope1||'')+(c.hope1time?' '+c.hope1time:'')],
-    ['作業希望日時',(c.hope2||'')+(c.hope2time?' '+c.hope2time:'')],
-    ['希望時間帯',c.time],['担当メモ',c.memo]
-  ].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
+  return [['受付日',c.date],['受付方法',c.channel],['担当者',c.staff],['お客様名',c.name],['電話番号',c.tel],['お客様住所',c.customerAddress],['作業場所',c.sameAddress?'お客様住所と同じ':c.address],['建物種別',c.building],['階数・間取り',c.floor],['作業種別',c.type],['品目・量',c.items],['特記事項',c.notes],['事前写真',c.photo],['見積もり希望日時',(c.hope1||'')+(c.hope1time?' '+c.hope1time:'')],['作業希望日時',(c.hope2||'')+(c.hope2time?' '+c.hope2time:'')],['希望時間帯',c.time],['担当メモ',c.memo]].map(r=>`<div class="info-row"><span class="info-label">${r[0]}</span><span class="info-val">${r[1]||'—'}</span></div>`).join('');
 }
 
 function deleteCase(){
@@ -745,6 +739,8 @@ function openDetail(id){
   const wc=document.getElementById('btn-work-cal');
   if(c.calendarSynced){wc.innerHTML='✓ 作業日登録済み';wc.classList.add('done');wc.removeAttribute('href');document.getElementById('btn-work-cal-confirm').style.display='none';}
   else{wc.innerHTML='登録';wc.classList.remove('done');document.getElementById('btn-work-cal-confirm').style.display='none';}
+  // 工程表ボタンのリンクを設定
+  document.getElementById('btn-koseitei').href='koseitei.html?id='+encodeURIComponent(id);
   document.getElementById('company-estimate').value='便利屋むすび';
   document.getElementById('company-work').value='便利屋むすび';
   document.getElementById('toast-sheet').className='toast';
