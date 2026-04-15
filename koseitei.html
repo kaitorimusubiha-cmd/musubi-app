@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>便利屋むすび 工程表</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f5f5}
+.app{padding:1rem;max-width:600px;margin:0 auto}
+.header{background:#fff;padding:12px;border-radius:12px;border:0.5px solid #e0e0e0;margin-bottom:1rem}
+.header-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.logo{width:36px;height:36px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#085041;border:0.5px solid #9FE1CB;flex-shrink:0}
+.app-title{font-size:17px;font-weight:500}
+.app-sub{font-size:12px;color:#666}
+.case-info{background:#f5f5f5;border-radius:8px;padding:8px 12px;font-size:12px;color:#444;display:flex;flex-wrap:wrap;gap:6px}
+.case-info span{background:#fff;border-radius:4px;padding:2px 8px;border:0.5px solid #e0e0e0}
+.progress-summary{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.progress-title{font-size:12px;color:#666;margin-bottom:8px;font-weight:500}
+.progress-bar-wrap{background:#f0f0f0;border-radius:20px;height:12px;overflow:hidden;margin-bottom:6px}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#1D9E75,#5DCAA5);border-radius:20px;transition:width 0.4s}
+.progress-text{font-size:12px;color:#666;text-align:right}
+.progress-complete{color:#085041;font-weight:500}
+.area-list{margin-bottom:1rem}
+.area-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;margin-bottom:10px;overflow:hidden}
+.area-header{display:flex;align-items:center;gap:8px;padding:10px 14px;cursor:pointer;user-select:none}
+.area-header:hover{background:#f9f9f9}
+.area-toggle{font-size:12px;color:#999;margin-left:auto;flex-shrink:0}
+.area-name{font-size:14px;font-weight:500;flex:1}
+.area-progress{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500;flex-shrink:0}
+.area-progress.done{background:#E1F5EE;color:#085041}
+.area-progress.partial{background:#FAEEDA;color:#633806}
+.area-progress.none{background:#f5f5f5;color:#888}
+.area-body{padding:0 14px 12px;border-top:0.5px solid #f0f0f0}
+.step-list{margin-top:10px}
+.step-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid #f0f0f0}
+.step-item:last-child{border-bottom:none}
+.step-check{width:22px;height:22px;border-radius:6px;border:1.5px solid #ccc;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s}
+.step-check.checked{background:#1D9E75;border-color:#1D9E75}
+.step-check.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:700}
+.step-name{flex:1;font-size:13px}
+.step-name.checked{text-decoration:line-through;color:#aaa}
+.step-memo{font-size:11px;color:#999;margin-top:2px}
+.step-actions{display:flex;gap:4px;flex-shrink:0}
+.step-del-btn{width:24px;height:24px;border-radius:6px;border:0.5px solid #F09595;background:#fff;color:#A32D2D;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.add-step-row{display:flex;gap:6px;margin-top:10px}
+.add-step-input{flex:1;border:0.5px solid #ccc;border-radius:8px;padding:6px 10px;font-size:13px}
+.add-step-btn{padding:6px 12px;border-radius:8px;border:none;background:#1D9E75;color:#fff;font-size:13px;cursor:pointer;white-space:nowrap}
+.area-memo-row{margin-top:8px}
+.area-memo-input{width:100%;border:0.5px solid #ccc;border-radius:8px;padding:6px 10px;font-size:12px;color:#666;resize:none;height:48px}
+.add-area-section{background:#fff;border:0.5px dashed #ccc;border-radius:12px;padding:12px;margin-bottom:1rem}
+.add-area-title{font-size:12px;color:#666;margin-bottom:8px}
+.add-area-row{display:flex;gap:6px}
+.add-area-input{flex:1;border:0.5px solid #ccc;border-radius:8px;padding:8px 10px;font-size:13px}
+.add-area-btn{padding:8px 16px;border-radius:8px;border:none;background:#1D9E75;color:#fff;font-size:13px;cursor:pointer}
+.btn-complete{width:100%;padding:12px;border-radius:8px;border:none;background:#1D9E75;color:#fff;font-size:15px;font-weight:500;cursor:pointer;margin-bottom:1rem}
+.btn-complete:disabled{background:#9FE1CB;cursor:not-allowed}
+.btn-complete.all-done{background:#085041}
+.work-time-section{background:#fff;border:0.5px solid #e0e0e0;border-radius:12px;padding:1rem;margin-bottom:1rem}
+.work-time-title{font-size:12px;font-weight:500;color:#666;margin-bottom:10px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field label{font-size:12px;color:#666;display:block;margin-bottom:3px}
+.field input,.field textarea,.field select{width:100%;border:0.5px solid #ccc;border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit}
+.field textarea{resize:vertical;min-height:50px}
+.toast{display:none;border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:10px}
+.toast.show{display:block}
+.toast.ok{background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041}
+.toast.err{background:#FCEBEB;border:0.5px solid #F09595;color:#A32D2D}
+.toast.info{background:#E6F1FB;border:0.5px solid #85B7EB;color:#0C447C}
+.loading-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#1D9E75;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.back-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#666;text-decoration:none;margin-bottom:1rem;padding:6px 10px;border-radius:8px;border:0.5px solid #ccc;background:#fff}
+.empty-area{text-align:center;padding:1.5rem;color:#aaa;font-size:13px}
+.area-del-btn{padding:3px 8px;border-radius:6px;border:0.5px solid #F09595;background:#fff;color:#A32D2D;font-size:11px;cursor:pointer;margin-left:4px}
+</style>
+</head>
+<body>
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div style="font-size:13px;color:#666">読み込み中...</div>
+</div>
+
+<div class="app">
+  <a href="index.html" class="back-link">← 案件管理へ戻る</a>
+
+  <div class="header">
+    <div class="header-top">
+      <div class="logo">む</div>
+      <div>
+        <div class="app-title">片付け工程表</div>
+        <div class="app-sub" id="sync-status">読み込み中...</div>
+      </div>
+    </div>
+    <div class="case-info" id="case-info">案件情報を読み込み中...</div>
+  </div>
+
+  <div class="toast" id="main-toast"></div>
+
+  <div class="progress-summary">
+    <div class="progress-title">全体進捗</div>
+    <div class="progress-bar-wrap"><div class="progress-bar-fill" id="total-bar" style="width:0%"></div></div>
+    <div class="progress-text" id="total-text">0 / 0 完了</div>
+  </div>
+
+  <div class="work-time-section">
+    <div class="work-time-title">作業時間・記録</div>
+    <div class="row2">
+      <div class="field"><label>開始時刻</label><input type="time" id="work-start"></div>
+      <div class="field"><label>終了時刻</label><input type="time" id="work-end"></div>
+    </div>
+    <div class="field" style="margin-top:8px"><label>作業メモ</label><textarea id="work-memo" placeholder="特記事項・引き渡し内容など"></textarea></div>
+    <button style="width:100%;margin-top:8px;padding:8px;border-radius:8px;border:none;background:#E6F1FB;color:#0C447C;font-size:13px;font-weight:500;cursor:pointer" onclick="saveWorkTime()">作業時間を保存</button>
+  </div>
+
+  <div class="add-area-section">
+    <div class="add-area-title">エリアを追加</div>
+    <div class="add-area-row">
+      <input type="text" class="add-area-input" id="new-area-name" placeholder="例：リビング、キッチン、玄関など">
+      <button class="add-area-btn" onclick="addArea()">追加</button>
+    </div>
+  </div>
+
+  <div class="area-list" id="area-list">
+    <div class="empty-area">エリアを追加してください</div>
+  </div>
+
+  <button class="btn-complete" id="btn-complete" onclick="completeAll()">作業完了として案件管理に反映する</button>
+</div>
+
+<script>
+const GAS_URL='https://script.google.com/macros/s/AKfycbxtbt9e73FSLimNnC0x1dqVSm267ijjjRbMsaMkhztXAUw0TFBlUXEvIG7K4OcDfjjo/exec';
+let caseId=null;
+let caseData=null;
+let koseitei={areas:[],workStart:'',workEnd:'',workMemo:'',completed:false};
+
+function getParams(){
+  const p=new URLSearchParams(window.location.search);
+  return {id:p.get('id')};
+}
+
+async function init(){
+  document.getElementById('loading-overlay').classList.add('show');
+  const {id}=getParams();
+  if(!id){
+    document.getElementById('sync-status').textContent='案件IDが指定されていません';
+    document.getElementById('loading-overlay').classList.remove('show');
+    return;
+  }
+  caseId=id;
+  // 案件データ読み込み
+  try{
+    const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now());
+    const text=await res.text();
+    const cases=JSON.parse(text);
+    caseData=cases.find(c=>c.id===id)||null;
+  }catch(e){
+    const local=localStorage.getItem('musubi_gas');
+    if(local){const cases=JSON.parse(local);caseData=cases.find(c=>c.id===id)||null;}
+  }
+  // 工程表データ読み込み
+  try{
+    const res=await fetch(GAS_URL+'?action=load_koseitei&id='+encodeURIComponent(id)+'&t='+Date.now());
+    const text=await res.text();
+    const data=JSON.parse(text);
+    if(data&&data.areas){koseitei=data;}
+  }catch(e){
+    const local=localStorage.getItem('koseitei_'+id);
+    if(local){try{koseitei=JSON.parse(local);}catch(e){}}
+  }
+  renderCaseInfo();
+  renderAreas();
+  renderProgress();
+  loadWorkTime();
+  document.getElementById('sync-status').textContent='読み込み完了';
+  document.getElementById('loading-overlay').classList.remove('show');
+}
+
+function renderCaseInfo(){
+  const el=document.getElementById('case-info');
+  if(!caseData){el.textContent='案件データなし（ID: '+caseId+')';return;}
+  const workDate=caseData.stepData&&caseData.stepData[3]?caseData.stepData[3].date:'';
+  el.innerHTML=`
+    <span>📋 ${caseData.id}</span>
+    <span>👤 ${caseData.name} 様</span>
+    ${caseData.staff?`<span>担当: ${caseData.staff}</span>`:''}
+    ${workDate?`<span>作業日: ${workDate}</span>`:''}
+    ${caseData.address?`<span>📍 ${caseData.sameAddress?caseData.customerAddress:caseData.address}</span>`:''}
+    ${caseData.type?`<span>${caseData.type}</span>`:''}
+  `;
+}
+
+function saveKoseitei(){
+  fetch(GAS_URL+'?action=save_koseitei&id='+encodeURIComponent(caseId)+'&data='+encodeURIComponent(JSON.stringify(koseitei)),{mode:'no-cors'}).catch(()=>{});
+  localStorage.setItem('koseitei_'+caseId,JSON.stringify(koseitei));
+}
+
+function renderProgress(){
+  let total=0,done=0;
+  koseitei.areas.forEach(a=>{
+    a.steps.forEach(s=>{total++;if(s.checked)done++;});
+  });
+  const pct=total>0?Math.round(done/total*100):0;
+  document.getElementById('total-bar').style.width=pct+'%';
+  document.getElementById('total-text').innerHTML=`<span class="${pct===100?'progress-complete':''}">${done} / ${total} 完了 (${pct}%)</span>`;
+  const btn=document.getElementById('btn-complete');
+  if(koseitei.completed){btn.textContent='✓ 作業完了済み';btn.classList.add('all-done');btn.disabled=true;}
+  else if(total>0&&done===total){btn.disabled=false;btn.classList.add('all-done');btn.textContent='✓ 全完了！案件管理に反映する';}
+  else{btn.disabled=false;btn.classList.remove('all-done');btn.textContent='作業完了として案件管理に反映する';}
+}
+
+function renderAreas(){
+  const el=document.getElementById('area-list');
+  if(!koseitei.areas.length){el.innerHTML='<div class="empty-area">エリアを追加してください</div>';return;}
+  el.innerHTML=koseitei.areas.map((area,ai)=>{
+    const total=area.steps.length;
+    const done=area.steps.filter(s=>s.checked).length;
+    const pct=total>0?Math.round(done/total*100):0;
+    const progressClass=total===0?'none':done===total?'done':'partial';
+    const progressText=total===0?'未設定':`${done}/${total}`;
+    const stepsHtml=area.steps.map((step,si)=>`
+      <div class="step-item" id="step-${ai}-${si}">
+        <div class="step-check ${step.checked?'checked':''}" onclick="toggleStep(${ai},${si})"></div>
+        <div style="flex:1">
+          <div class="step-name ${step.checked?'checked':''}">${escHtml(step.name)}</div>
+          ${step.memo?`<div class="step-memo">${escHtml(step.memo)}</div>`:''}
+        </div>
+        <div class="step-actions">
+          <button class="step-del-btn" onclick="deleteStep(${ai},${si})">×</button>
+        </div>
+      </div>`).join('');
+    return `
+      <div class="area-card" id="area-${ai}">
+        <div class="area-header" onclick="toggleArea(${ai})">
+          <div class="area-name">${escHtml(area.name)}</div>
+          <span class="area-progress ${progressClass}">${progressText}</span>
+          <button class="area-del-btn" onclick="event.stopPropagation();deleteArea(${ai})">削除</button>
+          <span class="area-toggle" id="toggle-${ai}">▼</span>
+        </div>
+        <div class="area-body" id="body-${ai}" style="${area.collapsed?'display:none':''}">
+          <div class="step-list">${stepsHtml||'<div style="font-size:12px;color:#aaa;padding:8px 0">手順を追加してください</div>'}</div>
+          <div class="add-step-row">
+            <input type="text" class="add-step-input" id="step-input-${ai}" placeholder="手順を入力（例：搬出）" onkeydown="if(event.key==='Enter')addStep(${ai})">
+            <button class="add-step-btn" onclick="addStep(${ai})">追加</button>
+          </div>
+          <div class="area-memo-row">
+            <textarea class="area-memo-input" id="area-memo-${ai}" placeholder="エリアメモ" onchange="saveAreaMemo(${ai})">${escHtml(area.memo||'')}</textarea>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function toggleArea(ai){
+  koseitei.areas[ai].collapsed=!koseitei.areas[ai].collapsed;
+  const body=document.getElementById('body-'+ai);
+  const toggle=document.getElementById('toggle-'+ai);
+  body.style.display=koseitei.areas[ai].collapsed?'none':'';
+  toggle.textContent=koseitei.areas[ai].collapsed?'▶':'▼';
+  saveKoseitei();
+}
+
+function addArea(){
+  const input=document.getElementById('new-area-name');
+  const name=input.value.trim();
+  if(!name){showToast('main-toast','エリア名を入力してください','err');return;}
+  koseitei.areas.push({name,steps:[],memo:'',collapsed:false});
+  input.value='';
+  saveKoseitei();
+  renderAreas();
+  renderProgress();
+}
+
+function deleteArea(ai){
+  if(!confirm(koseitei.areas[ai].name+'を削除しますか？'))return;
+  koseitei.areas.splice(ai,1);
+  saveKoseitei();
+  renderAreas();
+  renderProgress();
+}
+
+function addStep(ai){
+  const input=document.getElementById('step-input-'+ai);
+  const name=input.value.trim();
+  if(!name){showToast('main-toast','手順を入力してください','err');return;}
+  koseitei.areas[ai].steps.push({name,checked:false,memo:''});
+  input.value='';
+  saveKoseitei();
+  renderAreas();
+  renderProgress();
+}
+
+function deleteStep(ai,si){
+  koseitei.areas[ai].steps.splice(si,1);
+  saveKoseitei();
+  renderAreas();
+  renderProgress();
+}
+
+function toggleStep(ai,si){
+  koseitei.areas[ai].steps[si].checked=!koseitei.areas[ai].steps[si].checked;
+  saveKoseitei();
+  renderAreas();
+  renderProgress();
+}
+
+function saveAreaMemo(ai){
+  koseitei.areas[ai].memo=document.getElementById('area-memo-'+ai).value;
+  saveKoseitei();
+}
+
+function loadWorkTime(){
+  if(koseitei.workStart)document.getElementById('work-start').value=koseitei.workStart;
+  if(koseitei.workEnd)document.getElementById('work-end').value=koseitei.workEnd;
+  if(koseitei.workMemo)document.getElementById('work-memo').value=koseitei.workMemo;
+}
+
+function saveWorkTime(){
+  koseitei.workStart=document.getElementById('work-start').value;
+  koseitei.workEnd=document.getElementById('work-end').value;
+  koseitei.workMemo=document.getElementById('work-memo').value;
+  saveKoseitei();
+  showToast('main-toast','作業時間を保存しました','ok');
+}
+
+async function completeAll(){
+  koseitei.workStart=document.getElementById('work-start').value;
+  koseitei.workEnd=document.getElementById('work-end').value;
+  koseitei.workMemo=document.getElementById('work-memo').value;
+  koseitei.completed=true;
+  koseitei.completedAt=new Date().toISOString();
+  saveKoseitei();
+  // 案件管理の stepIndex を「完了報告」（6）に進める
+  try{
+    const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now());
+    const text=await res.text();
+    let cases=JSON.parse(text);
+    const c=cases.find(x=>x.id===caseId);
+    if(c&&c.stepIndex<6){
+      c.stepIndex=6;
+      fetch(GAS_URL+'?action=save_case&id='+encodeURIComponent(c.id)+'&data='+encodeURIComponent(JSON.stringify(c)),{mode:'no-cors'}).catch(()=>{});
+      // ローカルも更新
+      const local=localStorage.getItem('musubi_gas');
+      if(local){
+        let lCases=JSON.parse(local);
+        const lc=lCases.find(x=>x.id===caseId);
+        if(lc)lc.stepIndex=6;
+        localStorage.setItem('musubi_gas',JSON.stringify(lCases));
+      }
+    }
+  }catch(e){}
+  renderProgress();
+  showToast('main-toast','作業完了しました！案件管理の進捗を「完了報告」に更新しました','ok');
+}
+
+function escHtml(str){
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showToast(id,msg,type){
+  const t=document.getElementById(id);if(!t)return;
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',4000);
+}
+
+init();
+</script>
+</body>
+</html>
