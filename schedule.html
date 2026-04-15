@@ -22,33 +22,54 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .month-title{font-size:15px;font-weight:500}
 .month-btn{padding:6px 12px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:13px;cursor:pointer}
 .month-btn:hover{border-color:#1D9E75;color:#0F6E56}
+.add-schedule-btn{width:100%;padding:10px;border-radius:8px;border:1.5px dashed #1D9E75;background:#fff;color:#0F6E56;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:6px}
+.add-schedule-btn:hover{background:#E1F5EE}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:300;align-items:flex-end;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px 16px 0 0;padding:1.5rem 1rem;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
+.modal-title{font-size:15px;font-weight:500;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center}
+.modal-close{padding:4px 10px;border-radius:6px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:13px;cursor:pointer}
+.field{margin-bottom:10px}
+.lbl{font-size:12px;color:#666;margin-bottom:3px}
+input[type=text],input[type=date],input[type=time],select,textarea{width:100%;border:0.5px solid #ccc;border-radius:8px;padding:7px 10px;font-size:13px;color:#1a1a1a;background:#fff;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75}
+textarea{resize:vertical;min-height:60px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.btn-primary{width:100%;padding:10px;border-radius:8px;border:none;background:#1D9E75;color:#fff;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}
+.btn-primary:active{transform:scale(0.98)}
 .day-group{margin-bottom:12px}
 .day-header{font-size:12px;font-weight:500;color:#666;padding:6px 12px;background:#f0f0f0;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .day-header.today{background:#E1F5EE;color:#085041}
 .day-header.past{opacity:0.6}
 .today-badge{font-size:10px;background:#1D9E75;color:#fff;padding:1px 6px;border-radius:4px}
-.schedule-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;border-left:3px solid #ccc;transition:border-color .15s}
-.schedule-card:hover{border-color:#1D9E75}
+.schedule-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;border-left:3px solid #ccc}
 .schedule-card.musubi{border-left-color:#1D9E75}
 .schedule-card.rf{border-left-color:#185FA5}
 .schedule-card.other{border-left-color:#EF9F27}
 .schedule-card.estimate{border-left-color:#AB47BC}
+.schedule-card.task{border-left-color:#607D8B}
 .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
-.card-name{font-size:13px;font-weight:500}
-.card-type{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500}
+.card-name{font-size:13px;font-weight:500;flex:1}
+.card-type-badge{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;flex-shrink:0}
 .type-estimate{background:#EDE7F6;color:#6A1B9A}
 .type-work{background:#EAF3DE;color:#27500A}
-.card-meta{font-size:12px;color:#666;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.type-meeting{background:#E3F2FD;color:#1565C0}
+.type-sales{background:#FFF3E0;color:#E65100}
+.type-admin{background:#F3E5F5;color:#6A1B9A}
+.type-other{background:#ECEFF1;color:#37474F}
+.card-meta{font-size:12px;color:#666;display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:3px}
 .staff-badge{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500}
 .staff-musubi{background:#E1F5EE;color:#085041}
 .staff-rf{background:#E6F1FB;color:#0C447C}
 .staff-other{background:#FAEEDA;color:#633806}
 .progress-mini{flex:1;height:4px;border-radius:2px;background:#e0e0e0;margin-top:6px;min-width:60px}
-.progress-mini-fill{height:100%;border-radius:2px;background:#1D9E75;transition:width 0.3s}
+.progress-mini-fill{height:100%;border-radius:2px;background:#1D9E75}
 .status-badge{font-size:10px;padding:1px 6px;border-radius:4px}
 .s0{background:#F1EFE8;color:#444441}.s1{background:#E6F1FB;color:#0C447C}
 .s2{background:#FAEEDA;color:#633806}.s3{background:#EAF3DE;color:#27500A}
 .s4{background:#E1F5EE;color:#085041}.s5{background:#EEEDFE;color:#3C3489}
+.task-del-btn{font-size:11px;padding:2px 8px;border-radius:4px;border:0.5px solid #F09595;background:#fff;color:#A32D2D;cursor:pointer;flex-shrink:0;margin-left:4px}
+.cal-btn{font-size:11px;padding:2px 8px;border-radius:4px;border:0.5px solid #185FA5;background:#fff;color:#185FA5;cursor:pointer;flex-shrink:0;margin-left:4px;text-decoration:none}
 .empty{text-align:center;padding:3rem;color:#aaa;font-size:13px}
 .loading-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:12px}
 .loading-overlay.show{display:flex}
@@ -56,13 +77,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 @keyframes spin{to{transform:rotate(360deg)}}
 .legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;font-size:11px;color:#666}
 .legend-item{display:flex;align-items:center;gap:4px}
-.legend-dot{width:10px;height:10px;border-radius:2px}
+.legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+.toast{display:none;border-radius:8px;padding:9px 12px;font-size:13px;margin-bottom:10px}
+.toast.show{display:block}
+.toast.ok{background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041}
+.toast.err{background:#FCEBEB;border:0.5px solid #F09595;color:#A32D2D}
 </style>
 </head>
 <body>
 <div id="loading-overlay" class="loading-overlay">
   <div class="loading-spinner"></div>
   <div style="font-size:13px;color:#666">読み込み中...</div>
+</div>
+
+<!-- 業務予定追加モーダル -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalIfOutside(event)">
+  <div class="modal" id="modal">
+    <div class="modal-title">
+      <span id="modal-title-text">業務予定を追加</span>
+      <button class="modal-close" onclick="closeModal()">閉じる</button>
+    </div>
+    <div class="field">
+      <div class="lbl">種類</div>
+      <select id="s-type">
+        <option value="打ち合わせ">打ち合わせ</option>
+        <option value="営業・訪問">営業・訪問</option>
+        <option value="事務作業">事務作業</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+    <div class="field">
+      <div class="lbl">タイトル</div>
+      <input type="text" id="s-title" placeholder="例：〇〇会社との打ち合わせ">
+    </div>
+    <div class="row2">
+      <div class="field"><div class="lbl">日付</div><input type="date" id="s-date"></div>
+      <div class="field"><div class="lbl">時間</div><input type="time" id="s-time"></div>
+    </div>
+    <div class="field">
+      <div class="lbl">担当者</div>
+      <select id="s-staff">
+        <option value="">選択</option>
+        <option value="むすび">むすび</option>
+        <option value="RF">RF</option>
+        <option value="その他">その他</option>
+      </select>
+    </div>
+    <div class="field">
+      <div class="lbl">メモ</div>
+      <textarea id="s-memo" placeholder="内容・場所など"></textarea>
+    </div>
+    <div style="background:#f5f5f5;border-radius:8px;padding:10px;margin-top:8px">
+      <div style="font-size:12px;color:#666;margin-bottom:6px">Googleカレンダーにも登録する</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input type="text" id="s-company" placeholder="担当会社名（例：便利屋むすび）" style="flex:1">
+        <a id="s-cal-btn" class="cal-btn" target="_blank" style="padding:7px 12px;font-size:12px" onclick="updateCalBtn()">登録</a>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveSchedule()">予定を保存する</button>
+    <div class="toast" id="modal-toast" style="margin-top:8px"></div>
+  </div>
 </div>
 
 <div class="app">
@@ -79,18 +153,26 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
     <a href="schedule.html" class="nav-link active">📅 スケジュール</a>
   </div>
 
+  <div class="toast" id="main-toast"></div>
+
   <div class="month-nav">
     <button class="month-btn" onclick="changeMonth(-1)">◀</button>
     <div class="month-title" id="month-title"></div>
     <button class="month-btn" onclick="changeMonth(1)">▶</button>
   </div>
 
+  <button class="add-schedule-btn" onclick="openModal()">
+    ＋ 業務予定を追加
+  </button>
+
   <div class="filter-bar">
-    <button class="filter-btn active" onclick="setFilter('all')">すべて</button>
-    <button class="filter-btn" onclick="setFilter('estimate')">見積もり</button>
-    <button class="filter-btn" onclick="setFilter('work')">作業</button>
-    <button class="filter-btn" onclick="setFilter('musubi')">むすび</button>
-    <button class="filter-btn" onclick="setFilter('rf')">RF</button>
+    <button class="filter-btn active" onclick="setFilter('all',this)">すべて</button>
+    <button class="filter-btn" onclick="setFilter('case',this)">案件のみ</button>
+    <button class="filter-btn" onclick="setFilter('task',this)">業務予定のみ</button>
+    <button class="filter-btn" onclick="setFilter('estimate',this)">見積もり</button>
+    <button class="filter-btn" onclick="setFilter('work',this)">作業</button>
+    <button class="filter-btn" onclick="setFilter('musubi',this)">むすび</button>
+    <button class="filter-btn" onclick="setFilter('rf',this)">RF</button>
   </div>
 
   <div class="legend">
@@ -98,33 +180,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
     <div class="legend-item"><div class="legend-dot" style="background:#185FA5"></div>RF</div>
     <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>その他</div>
     <div class="legend-item"><div class="legend-dot" style="background:#AB47BC"></div>見積もり</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#607D8B"></div>業務予定</div>
   </div>
 
   <div id="schedule-list"></div>
 </div>
 
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbxtbt9e73FSLimNnC0x1dqVSm267ijjjRbMsaMkhztXAUw0TFBlUXEvIG7K4OcDfjjo/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbxdhoLw2BRHiKuD8Pk0tHiH4WizFQD8xGnx1z5Ftrej5LUxXbR4qkjfQTbyAEfItwgt/exec';
 const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
 const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
 let cases=[];
+let schedules=[];
 let currentFilter='all';
 let currentYear=new Date().getFullYear();
 let currentMonth=new Date().getMonth();
+let editingId=null;
 const today=new Date();today.setHours(0,0,0,0);
 
 async function init(){
   document.getElementById('loading-overlay').classList.add('show');
   try{
-    const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now());
-    const text=await res.text();
-    const loaded=JSON.parse(text);
-    if(Array.isArray(loaded)&&loaded.length>0)cases=loaded;
+    const [r1,r2]=await Promise.all([
+      fetch(GAS_URL+'?action=load_cases&t='+Date.now()),
+      fetch(GAS_URL+'?action=load_schedules&t='+Date.now())
+    ]);
+    const t1=await r1.text();const t2=await r2.text();
+    const lc=JSON.parse(t1);const ls=JSON.parse(t2);
+    if(Array.isArray(lc)&&lc.length>0)cases=lc;
+    if(Array.isArray(ls))schedules=ls;
+    localStorage.setItem('musubi_gas',JSON.stringify(cases));
+    localStorage.setItem('musubi_schedules',JSON.stringify(schedules));
     document.getElementById('sync-status').textContent='同期済み';
   }catch(e){
     document.getElementById('sync-status').textContent='ローカルデータ使用中';
-    const local=localStorage.getItem('musubi_gas');
-    if(local)try{cases=JSON.parse(local);}catch(e){}
+    const lc=localStorage.getItem('musubi_gas');
+    const ls=localStorage.getItem('musubi_schedules');
+    if(lc)try{cases=JSON.parse(lc);}catch(e){}
+    if(ls)try{schedules=JSON.parse(ls);}catch(e){}
   }
   document.getElementById('loading-overlay').classList.remove('show');
   updateMonthTitle();
@@ -134,20 +227,102 @@ async function init(){
 function updateMonthTitle(){
   document.getElementById('month-title').textContent=`${currentYear}年 ${currentMonth+1}月`;
 }
-
 function changeMonth(delta){
   currentMonth+=delta;
   if(currentMonth>11){currentMonth=0;currentYear++;}
   if(currentMonth<0){currentMonth=11;currentYear--;}
-  updateMonthTitle();
+  updateMonthTitle();renderSchedule();
+}
+function setFilter(f,btn){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
   renderSchedule();
 }
 
-function setFilter(f){
-  currentFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  event.target.classList.add('active');
+function openModal(id){
+  editingId=id||null;
+  if(id){
+    const s=schedules.find(x=>x.id===id);
+    if(!s)return;
+    document.getElementById('modal-title-text').textContent='業務予定を編集';
+    document.getElementById('s-type').value=s.type||'打ち合わせ';
+    document.getElementById('s-title').value=s.title||'';
+    document.getElementById('s-date').value=s.date||'';
+    document.getElementById('s-time').value=s.time||'';
+    document.getElementById('s-staff').value=s.staff||'';
+    document.getElementById('s-memo').value=s.memo||'';
+    document.getElementById('s-company').value=s.company||'便利屋むすび';
+  }else{
+    document.getElementById('modal-title-text').textContent='業務予定を追加';
+    document.getElementById('s-type').value='打ち合わせ';
+    document.getElementById('s-title').value='';
+    document.getElementById('s-date').value=new Date().toISOString().split('T')[0];
+    document.getElementById('s-time').value='';
+    document.getElementById('s-staff').value='むすび';
+    document.getElementById('s-memo').value='';
+    document.getElementById('s-company').value='便利屋むすび';
+  }
+  updateCalBtn();
+  document.getElementById('modal-overlay').classList.add('show');
+}
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('show');
+  editingId=null;
+}
+function closeModalIfOutside(e){
+  if(e.target===document.getElementById('modal-overlay'))closeModal();
+}
+
+function updateCalBtn(){
+  const date=document.getElementById('s-date').value;
+  const time=document.getElementById('s-time').value||'09:00';
+  const title=document.getElementById('s-title').value||document.getElementById('s-type').value;
+  const company=document.getElementById('s-company').value||'便利屋むすび';
+  const memo=document.getElementById('s-memo').value;
+  const btn=document.getElementById('s-cal-btn');
+  if(date){
+    btn.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company,name:title,type:'',address:'',workdate:date,starttime:time,crew:'',vehicle:'',partner:'',prep:memo}).toString();
+  }
+}
+
+function genSchedId(){return 'SC-'+Date.now();}
+
+function saveSchedule(){
+  const title=document.getElementById('s-title').value.trim();
+  const date=document.getElementById('s-date').value;
+  if(!title||!date){showToast('modal-toast','タイトルと日付は必須です','err');return;}
+  const s={
+    id:editingId||genSchedId(),
+    type:document.getElementById('s-type').value,
+    title,date,
+    time:document.getElementById('s-time').value,
+    staff:document.getElementById('s-staff').value,
+    memo:document.getElementById('s-memo').value,
+    company:document.getElementById('s-company').value
+  };
+  if(editingId){
+    const idx=schedules.findIndex(x=>x.id===editingId);
+    if(idx>=0)schedules[idx]=s;
+  }else{
+    schedules.push(s);
+  }
+  localStorage.setItem('musubi_schedules',JSON.stringify(schedules));
+  fetch(GAS_URL+'?action=save_schedule&id='+encodeURIComponent(s.id)+'&data='+encodeURIComponent(JSON.stringify(s)),{mode:'no-cors'}).catch(()=>{});
+  closeModal();
   renderSchedule();
+  showToast('main-toast','予定を保存しました','ok');
+}
+
+function deleteSchedule(id){
+  const s=schedules.find(x=>x.id===id);
+  if(!s)return;
+  if(!confirm(`「${s.title}」を削除しますか？`))return;
+  schedules=schedules.filter(x=>x.id!==id);
+  localStorage.setItem('musubi_schedules',JSON.stringify(schedules));
+  fetch(GAS_URL+'?action=delete_schedule&id='+encodeURIComponent(id),{mode:'no-cors'}).catch(()=>{});
+  renderSchedule();
+  showToast('main-toast','予定を削除しました','ok');
 }
 
 function getStaffClass(staff){
@@ -162,88 +337,87 @@ function getStaffBadgeClass(staff){
   if(staff==='RF')return 'staff-rf';
   return 'staff-other';
 }
+function getTypeClass(type){
+  const m={'打ち合わせ':'type-meeting','営業・訪問':'type-sales','事務作業':'type-admin'};
+  return m[type]||'type-other';
+}
 
 function buildEvents(){
   const events=[];
+  // 案件イベント
   cases.forEach(c=>{
-    // 見積もり日
     const estimateDate=c.stepData&&c.stepData[1]&&c.stepData[1].date?c.stepData[1].date:c.hope1||null;
-    if(estimateDate){
-      events.push({date:estimateDate,case:c,type:'estimate',time:c.stepData&&c.stepData[1]?c.stepData[1].time:c.hope1time||''});
-    }
-    // 作業日
+    if(estimateDate)events.push({date:estimateDate,kind:'case',type:'estimate',case:c,time:c.stepData&&c.stepData[1]?c.stepData[1].time:c.hope1time||''});
     const workDate=c.stepData&&c.stepData[3]&&c.stepData[3].date?c.stepData[3].date:c.hope2||null;
-    if(workDate){
-      events.push({date:workDate,case:c,type:'work',time:c.stepData&&c.stepData[3]?c.stepData[3].start:c.hope2time||''});
-    }
+    if(workDate)events.push({date:workDate,kind:'case',type:'work',case:c,time:c.stepData&&c.stepData[3]?c.stepData[3].start:c.hope2time||''});
+  });
+  // 業務予定イベント
+  schedules.forEach(s=>{
+    events.push({date:s.date,kind:'task',schedule:s,time:s.time||''});
   });
   return events;
 }
 
 function renderSchedule(){
   const events=buildEvents();
-  // 月の日付リストを生成
-  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
-  const days=[];
-  for(let d=1;d<=daysInMonth;d++){
-    days.push(new Date(currentYear,currentMonth,d));
-  }
-
-  // フィルタリング
-  let filtered=events.filter(ev=>{
+  const filtered=events.filter(ev=>{
     const d=new Date(ev.date);
     if(d.getFullYear()!==currentYear||d.getMonth()!==currentMonth)return false;
-    if(currentFilter==='estimate')return ev.type==='estimate';
-    if(currentFilter==='work')return ev.type==='work';
-    if(currentFilter==='musubi')return ev.case.staff==='むすび';
-    if(currentFilter==='rf')return ev.case.staff==='RF';
+    if(currentFilter==='case')return ev.kind==='case';
+    if(currentFilter==='task')return ev.kind==='task';
+    if(currentFilter==='estimate')return ev.kind==='case'&&ev.type==='estimate';
+    if(currentFilter==='work')return ev.kind==='case'&&ev.type==='work';
+    if(currentFilter==='musubi'){
+      if(ev.kind==='case')return ev.case.staff==='むすび';
+      if(ev.kind==='task')return ev.schedule.staff==='むすび';
+    }
+    if(currentFilter==='rf'){
+      if(ev.kind==='case')return ev.case.staff==='RF';
+      if(ev.kind==='task')return ev.schedule.staff==='RF';
+    }
     return true;
   });
 
-  // 日付でグループ化
-  const groups={};
-  filtered.forEach(ev=>{
-    if(!groups[ev.date])groups[ev.date]=[];
-    groups[ev.date].push(ev);
+  // 時間でソート
+  filtered.sort((a,b)=>{
+    if(a.date!==b.date)return a.date<b.date?-1:1;
+    const at=a.time||'99:99';const bt=b.time||'99:99';
+    return at<bt?-1:at>bt?1:0;
   });
 
+  const groups={};
+  filtered.forEach(ev=>{if(!groups[ev.date])groups[ev.date]=[];groups[ev.date].push(ev);});
   const sortedDates=Object.keys(groups).sort();
 
   const el=document.getElementById('schedule-list');
-  if(!sortedDates.length){
-    el.innerHTML='<div class="empty">この月の予定はありません</div>';
-    return;
-  }
+  if(!sortedDates.length){el.innerHTML='<div class="empty">この月の予定はありません</div>';return;}
 
   const dayNames=['日','月','火','水','木','金','土'];
-
   el.innerHTML=sortedDates.map(dateStr=>{
     const d=new Date(dateStr);
     const dayName=dayNames[d.getDay()];
     const isToday=d.getTime()===today.getTime();
     const isPast=d<today;
-    const isSun=d.getDay()===0;
-    const isSat=d.getDay()===6;
+    const isSun=d.getDay()===0;const isSat=d.getDay()===6;
     const dayColor=isSun?'color:#c0392b':isSat?'color:#2980b9':'';
-    const headerClass=isToday?'today':isPast?'past':'';
 
     const cardsHtml=groups[dateStr].map(ev=>{
-      const c=ev.case;
-      const staffClass=getStaffClass(c.staff);
-      const cardClass=ev.type==='estimate'?'estimate':staffClass;
-      const stepPct=Math.round(c.stepIndex/8*100);
-      const isHope=ev.type==='estimate'?(!(c.stepData&&c.stepData[1]&&c.stepData[1].date)&&c.hope1):(!(c.stepData&&c.stepData[3]&&c.stepData[3].date)&&c.hope2);
-      return `
-        <div class="schedule-card ${cardClass}" onclick="goToCase('${c.id}')">
+      if(ev.kind==='case'){
+        const c=ev.case;
+        const staffClass=getStaffClass(c.staff);
+        const cardClass=ev.type==='estimate'?'estimate':staffClass;
+        const stepPct=Math.round(c.stepIndex/8*100);
+        const isHope=ev.type==='estimate'?(!(c.stepData&&c.stepData[1]&&c.stepData[1].date)&&c.hope1):(!(c.stepData&&c.stepData[3]&&c.stepData[3].date)&&c.hope2);
+        return `<div class="schedule-card ${cardClass}" onclick="goToCase('${c.id}')">
           <div class="card-top">
             <div class="card-name">${c.name} 様 ${isHope?'<span style="font-size:10px;color:#aaa">(希望)</span>':''}</div>
-            <span class="card-type ${ev.type==='estimate'?'type-estimate':'type-work'}">${ev.type==='estimate'?'見積もり':'作業'}</span>
+            <span class="card-type-badge ${ev.type==='estimate'?'type-estimate':'type-work'}">${ev.type==='estimate'?'見積もり':'作業'}</span>
           </div>
           <div class="card-meta">
             ${ev.time?`<span>🕐 ${ev.time}</span>`:''}
             ${c.staff?`<span class="staff-badge ${getStaffBadgeClass(c.staff)}">${c.staff}</span>`:''}
             <span class="status-badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span>
-            ${c.type?`<span>${c.type}</span>`:''}
+            ${c.type?`<span style="font-size:11px">${c.type}</span>`:''}
           </div>
           ${c.address||c.customerAddress?`<div style="font-size:11px;color:#aaa;margin-top:3px">📍 ${c.sameAddress?c.customerAddress:c.address}</div>`:''}
           <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
@@ -251,22 +425,44 @@ function renderSchedule(){
             <span style="font-size:10px;color:#aaa;flex-shrink:0">${stepPct}%</span>
           </div>
         </div>`;
+      }else{
+        const s=ev.schedule;
+        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'便利屋むすび',name:s.title,type:'',address:'',workdate:s.date,starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:s.memo||''}).toString();
+        return `<div class="schedule-card task" onclick="openModal('${s.id}')">
+          <div class="card-top">
+            <div class="card-name">📌 ${s.title}</div>
+            <span class="card-type-badge ${getTypeClass(s.type)}">${s.type}</span>
+          </div>
+          <div class="card-meta">
+            ${s.time?`<span>🕐 ${s.time}</span>`:''}
+            ${s.staff?`<span class="staff-badge ${getStaffBadgeClass(s.staff)}">${s.staff}</span>`:''}
+            ${s.memo?`<span style="font-size:11px;color:#999">${s.memo.length>20?s.memo.slice(0,20)+'…':s.memo}</span>`:''}
+          </div>
+          <div style="display:flex;gap:6px;margin-top:8px" onclick="event.stopPropagation()">
+            <a class="cal-btn" href="${calUrl}" target="_blank">📅 カレンダー登録</a>
+            <button class="task-del-btn" onclick="deleteSchedule('${s.id}')">削除</button>
+          </div>
+        </div>`;
+      }
     }).join('');
 
-    return `
-      <div class="day-group">
-        <div class="day-header ${headerClass}">
-          <span style="${dayColor}">${currentMonth+1}/${d.getDate()}（${dayName}）</span>
-          ${isToday?'<span class="today-badge">今日</span>':''}
-          <span style="margin-left:auto;font-size:11px">${groups[dateStr].length}件</span>
-        </div>
-        ${cardsHtml}
-      </div>`;
+    return `<div class="day-group">
+      <div class="day-header ${isToday?'today':isPast?'past':''}">
+        <span style="${dayColor}">${currentMonth+1}/${d.getDate()}（${dayName}）</span>
+        ${isToday?'<span class="today-badge">今日</span>':''}
+        <span style="margin-left:auto;font-size:11px">${groups[dateStr].length}件</span>
+      </div>
+      ${cardsHtml}
+    </div>`;
   }).join('');
 }
 
-function goToCase(id){
-  window.location.href='index.html?case='+encodeURIComponent(id);
+function goToCase(id){window.location.href='index.html?case='+encodeURIComponent(id);}
+
+function showToast(id,msg,type){
+  const t=document.getElementById(id);if(!t)return;
+  t.textContent=msg;t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',4000);
 }
 
 init();
