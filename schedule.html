@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>便利屋むすび スケジュール</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;color:#1a1a1a;background:#f5f5f5}
+.app{padding:1rem;max-width:600px;margin:0 auto}
+.header{display:flex;align-items:center;gap:10px;margin-bottom:1rem;background:#fff;padding:12px;border-radius:12px;border:0.5px solid #e0e0e0}
+.logo{width:36px;height:36px;border-radius:50%;background:#E1F5EE;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;color:#085041;border:0.5px solid #9FE1CB;flex-shrink:0}
+.app-title{font-size:17px;font-weight:500}
+.app-sub{font-size:12px;color:#666}
+.nav-links{display:flex;gap:8px;margin-bottom:1rem}
+.nav-link{flex:1;padding:8px;border-radius:8px;border:0.5px solid #e0e0e0;background:#fff;color:#666;font-size:12px;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:4px}
+.nav-link.active{border-color:#1D9E75;color:#0F6E56;font-weight:500}
+.filter-bar{display:flex;gap:6px;margin-bottom:1rem;overflow-x:auto;padding-bottom:2px}
+.filter-btn{padding:6px 14px;border-radius:20px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.filter-btn.active{background:#1D9E75;border-color:#1D9E75;color:#fff;font-weight:500}
+.month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;background:#fff;padding:10px 14px;border-radius:12px;border:0.5px solid #e0e0e0}
+.month-title{font-size:15px;font-weight:500}
+.month-btn{padding:6px 12px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:13px;cursor:pointer}
+.month-btn:hover{border-color:#1D9E75;color:#0F6E56}
+.day-group{margin-bottom:12px}
+.day-header{font-size:12px;font-weight:500;color:#666;padding:6px 12px;background:#f0f0f0;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.day-header.today{background:#E1F5EE;color:#085041}
+.day-header.past{opacity:0.6}
+.today-badge{font-size:10px;background:#1D9E75;color:#fff;padding:1px 6px;border-radius:4px}
+.schedule-card{background:#fff;border:0.5px solid #e0e0e0;border-radius:10px;padding:10px 12px;margin-bottom:6px;cursor:pointer;border-left:3px solid #ccc;transition:border-color .15s}
+.schedule-card:hover{border-color:#1D9E75}
+.schedule-card.musubi{border-left-color:#1D9E75}
+.schedule-card.rf{border-left-color:#185FA5}
+.schedule-card.other{border-left-color:#EF9F27}
+.schedule-card.estimate{border-left-color:#AB47BC}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.card-name{font-size:13px;font-weight:500}
+.card-type{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500}
+.type-estimate{background:#EDE7F6;color:#6A1B9A}
+.type-work{background:#EAF3DE;color:#27500A}
+.card-meta{font-size:12px;color:#666;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.staff-badge{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500}
+.staff-musubi{background:#E1F5EE;color:#085041}
+.staff-rf{background:#E6F1FB;color:#0C447C}
+.staff-other{background:#FAEEDA;color:#633806}
+.progress-mini{flex:1;height:4px;border-radius:2px;background:#e0e0e0;margin-top:6px;min-width:60px}
+.progress-mini-fill{height:100%;border-radius:2px;background:#1D9E75;transition:width 0.3s}
+.status-badge{font-size:10px;padding:1px 6px;border-radius:4px}
+.s0{background:#F1EFE8;color:#444441}.s1{background:#E6F1FB;color:#0C447C}
+.s2{background:#FAEEDA;color:#633806}.s3{background:#EAF3DE;color:#27500A}
+.s4{background:#E1F5EE;color:#085041}.s5{background:#EEEDFE;color:#3C3489}
+.empty{text-align:center;padding:3rem;color:#aaa;font-size:13px}
+.loading-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(255,255,255,0.85);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+.loading-overlay.show{display:flex}
+.loading-spinner{width:32px;height:32px;border:3px solid #e0e0e0;border-top-color:#1D9E75;border-radius:50%;animation:spin 0.8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:1rem;font-size:11px;color:#666}
+.legend-item{display:flex;align-items:center;gap:4px}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+</style>
+</head>
+<body>
+<div id="loading-overlay" class="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div style="font-size:13px;color:#666">読み込み中...</div>
+</div>
+
+<div class="app">
+  <div class="header">
+    <div class="logo">む</div>
+    <div>
+      <div class="app-title">全体スケジュール</div>
+      <div class="app-sub" id="sync-status">読み込み中...</div>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">📋 案件管理</a>
+    <a href="schedule.html" class="nav-link active">📅 スケジュール</a>
+  </div>
+
+  <div class="month-nav">
+    <button class="month-btn" onclick="changeMonth(-1)">◀</button>
+    <div class="month-title" id="month-title"></div>
+    <button class="month-btn" onclick="changeMonth(1)">▶</button>
+  </div>
+
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="setFilter('all')">すべて</button>
+    <button class="filter-btn" onclick="setFilter('estimate')">見積もり</button>
+    <button class="filter-btn" onclick="setFilter('work')">作業</button>
+    <button class="filter-btn" onclick="setFilter('musubi')">むすび</button>
+    <button class="filter-btn" onclick="setFilter('rf')">RF</button>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>むすび</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#185FA5"></div>RF</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>その他</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#AB47BC"></div>見積もり</div>
+  </div>
+
+  <div id="schedule-list"></div>
+</div>
+
+<script>
+const GAS_URL='https://script.google.com/macros/s/AKfycbxtbt9e73FSLimNnC0x1dqVSm267ijjjRbMsaMkhztXAUw0TFBlUXEvIG7K4OcDfjjo/exec';
+const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
+const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
+let cases=[];
+let currentFilter='all';
+let currentYear=new Date().getFullYear();
+let currentMonth=new Date().getMonth();
+const today=new Date();today.setHours(0,0,0,0);
+
+async function init(){
+  document.getElementById('loading-overlay').classList.add('show');
+  try{
+    const res=await fetch(GAS_URL+'?action=load_cases&t='+Date.now());
+    const text=await res.text();
+    const loaded=JSON.parse(text);
+    if(Array.isArray(loaded)&&loaded.length>0)cases=loaded;
+    document.getElementById('sync-status').textContent='同期済み';
+  }catch(e){
+    document.getElementById('sync-status').textContent='ローカルデータ使用中';
+    const local=localStorage.getItem('musubi_gas');
+    if(local)try{cases=JSON.parse(local);}catch(e){}
+  }
+  document.getElementById('loading-overlay').classList.remove('show');
+  updateMonthTitle();
+  renderSchedule();
+}
+
+function updateMonthTitle(){
+  document.getElementById('month-title').textContent=`${currentYear}年 ${currentMonth+1}月`;
+}
+
+function changeMonth(delta){
+  currentMonth+=delta;
+  if(currentMonth>11){currentMonth=0;currentYear++;}
+  if(currentMonth<0){currentMonth=11;currentYear--;}
+  updateMonthTitle();
+  renderSchedule();
+}
+
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  renderSchedule();
+}
+
+function getStaffClass(staff){
+  if(!staff)return 'other';
+  if(staff==='むすび')return 'musubi';
+  if(staff==='RF')return 'rf';
+  return 'other';
+}
+function getStaffBadgeClass(staff){
+  if(!staff)return 'staff-other';
+  if(staff==='むすび')return 'staff-musubi';
+  if(staff==='RF')return 'staff-rf';
+  return 'staff-other';
+}
+
+function buildEvents(){
+  const events=[];
+  cases.forEach(c=>{
+    // 見積もり日
+    const estimateDate=c.stepData&&c.stepData[1]&&c.stepData[1].date?c.stepData[1].date:c.hope1||null;
+    if(estimateDate){
+      events.push({date:estimateDate,case:c,type:'estimate',time:c.stepData&&c.stepData[1]?c.stepData[1].time:c.hope1time||''});
+    }
+    // 作業日
+    const workDate=c.stepData&&c.stepData[3]&&c.stepData[3].date?c.stepData[3].date:c.hope2||null;
+    if(workDate){
+      events.push({date:workDate,case:c,type:'work',time:c.stepData&&c.stepData[3]?c.stepData[3].start:c.hope2time||''});
+    }
+  });
+  return events;
+}
+
+function renderSchedule(){
+  const events=buildEvents();
+  // 月の日付リストを生成
+  const daysInMonth=new Date(currentYear,currentMonth+1,0).getDate();
+  const days=[];
+  for(let d=1;d<=daysInMonth;d++){
+    days.push(new Date(currentYear,currentMonth,d));
+  }
+
+  // フィルタリング
+  let filtered=events.filter(ev=>{
+    const d=new Date(ev.date);
+    if(d.getFullYear()!==currentYear||d.getMonth()!==currentMonth)return false;
+    if(currentFilter==='estimate')return ev.type==='estimate';
+    if(currentFilter==='work')return ev.type==='work';
+    if(currentFilter==='musubi')return ev.case.staff==='むすび';
+    if(currentFilter==='rf')return ev.case.staff==='RF';
+    return true;
+  });
+
+  // 日付でグループ化
+  const groups={};
+  filtered.forEach(ev=>{
+    if(!groups[ev.date])groups[ev.date]=[];
+    groups[ev.date].push(ev);
+  });
+
+  const sortedDates=Object.keys(groups).sort();
+
+  const el=document.getElementById('schedule-list');
+  if(!sortedDates.length){
+    el.innerHTML='<div class="empty">この月の予定はありません</div>';
+    return;
+  }
+
+  const dayNames=['日','月','火','水','木','金','土'];
+
+  el.innerHTML=sortedDates.map(dateStr=>{
+    const d=new Date(dateStr);
+    const dayName=dayNames[d.getDay()];
+    const isToday=d.getTime()===today.getTime();
+    const isPast=d<today;
+    const isSun=d.getDay()===0;
+    const isSat=d.getDay()===6;
+    const dayColor=isSun?'color:#c0392b':isSat?'color:#2980b9':'';
+    const headerClass=isToday?'today':isPast?'past':'';
+
+    const cardsHtml=groups[dateStr].map(ev=>{
+      const c=ev.case;
+      const staffClass=getStaffClass(c.staff);
+      const cardClass=ev.type==='estimate'?'estimate':staffClass;
+      const stepPct=Math.round(c.stepIndex/8*100);
+      const isHope=ev.type==='estimate'?(!(c.stepData&&c.stepData[1]&&c.stepData[1].date)&&c.hope1):(!(c.stepData&&c.stepData[3]&&c.stepData[3].date)&&c.hope2);
+      return `
+        <div class="schedule-card ${cardClass}" onclick="goToCase('${c.id}')">
+          <div class="card-top">
+            <div class="card-name">${c.name} 様 ${isHope?'<span style="font-size:10px;color:#aaa">(希望)</span>':''}</div>
+            <span class="card-type ${ev.type==='estimate'?'type-estimate':'type-work'}">${ev.type==='estimate'?'見積もり':'作業'}</span>
+          </div>
+          <div class="card-meta">
+            ${ev.time?`<span>🕐 ${ev.time}</span>`:''}
+            ${c.staff?`<span class="staff-badge ${getStaffBadgeClass(c.staff)}">${c.staff}</span>`:''}
+            <span class="status-badge ${BADGE_CLASS[c.stepIndex]}">${STATUS[c.stepIndex]}</span>
+            ${c.type?`<span>${c.type}</span>`:''}
+          </div>
+          ${c.address||c.customerAddress?`<div style="font-size:11px;color:#aaa;margin-top:3px">📍 ${c.sameAddress?c.customerAddress:c.address}</div>`:''}
+          <div style="display:flex;align-items:center;gap:6px;margin-top:6px">
+            <div class="progress-mini"><div class="progress-mini-fill" style="width:${stepPct}%"></div></div>
+            <span style="font-size:10px;color:#aaa;flex-shrink:0">${stepPct}%</span>
+          </div>
+        </div>`;
+    }).join('');
+
+    return `
+      <div class="day-group">
+        <div class="day-header ${headerClass}">
+          <span style="${dayColor}">${currentMonth+1}/${d.getDate()}（${dayName}）</span>
+          ${isToday?'<span class="today-badge">今日</span>':''}
+          <span style="margin-left:auto;font-size:11px">${groups[dateStr].length}件</span>
+        </div>
+        ${cardsHtml}
+      </div>`;
+  }).join('');
+}
+
+function goToCase(id){
+  window.location.href='index.html?case='+encodeURIComponent(id);
+}
+
+init();
+</script>
+</body>
+</html>
