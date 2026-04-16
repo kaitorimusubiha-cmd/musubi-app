@@ -21,9 +21,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-siz
 .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;background:#fff;padding:10px 14px;border-radius:12px;border:0.5px solid #e0e0e0}
 .month-title{font-size:15px;font-weight:500}
 .month-btn{padding:6px 12px;border-radius:8px;border:0.5px solid #ccc;background:#fff;color:#666;font-size:13px;cursor:pointer}
-.month-btn:hover{border-color:#1D9E75;color:#0F6E56}
 .add-schedule-btn{width:100%;padding:10px;border-radius:8px;border:1.5px dashed #1D9E75;background:#fff;color:#0F6E56;font-size:14px;font-weight:500;cursor:pointer;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;gap:6px}
-.add-schedule-btn:hover{background:#E1F5EE}
 .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.4);z-index:300;align-items:flex-end;justify-content:center}
 .modal-overlay.show{display:flex}
 .modal{background:#fff;border-radius:16px 16px 0 0;padding:1.5rem 1rem;width:100%;max-width:600px;max-height:90vh;overflow-y:auto}
@@ -36,7 +34,6 @@ input:focus,select:focus,textarea:focus{outline:none;border-color:#1D9E75}
 textarea{resize:vertical;min-height:60px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .btn-primary{width:100%;padding:10px;border-radius:8px;border:none;background:#1D9E75;color:#fff;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px}
-.btn-primary:active{transform:scale(0.98)}
 .day-group{margin-bottom:12px}
 .day-header{font-size:12px;font-weight:500;color:#666;padding:6px 12px;background:#f0f0f0;border-radius:8px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
 .day-header.today{background:#E1F5EE;color:#085041}
@@ -48,11 +45,13 @@ textarea{resize:vertical;min-height:60px}
 .schedule-card.other{border-left-color:#EF9F27}
 .schedule-card.estimate{border-left-color:#AB47BC}
 .schedule-card.task{border-left-color:#607D8B}
+.schedule-card.worksched{border-left-color:#FF7043}
 .card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
 .card-name{font-size:13px;font-weight:500;flex:1}
-.card-type-badge{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;flex-shrink:0}
+.card-type-badge{font-size:11px;padding:2px 7px;border-radius:4px;font-weight:500;flex-shrink:0;margin-left:4px}
 .type-estimate{background:#EDE7F6;color:#6A1B9A}
 .type-work{background:#EAF3DE;color:#27500A}
+.type-worksched{background:#FBE9E7;color:#BF360C}
 .type-meeting{background:#E3F2FD;color:#1565C0}
 .type-sales{background:#FFF3E0;color:#E65100}
 .type-admin{background:#F3E5F5;color:#6A1B9A}
@@ -90,47 +89,28 @@ textarea{resize:vertical;min-height:60px}
   <div style="font-size:13px;color:#666">読み込み中...</div>
 </div>
 
-<!-- 業務予定追加モーダル -->
 <div class="modal-overlay" id="modal-overlay" onclick="closeModalIfOutside(event)">
   <div class="modal" id="modal">
     <div class="modal-title">
       <span id="modal-title-text">業務予定を追加</span>
       <button class="modal-close" onclick="closeModal()">閉じる</button>
     </div>
-    <div class="field">
-      <div class="lbl">種類</div>
-      <select id="s-type">
-        <option value="打ち合わせ">打ち合わせ</option>
-        <option value="営業・訪問">営業・訪問</option>
-        <option value="事務作業">事務作業</option>
-        <option value="その他">その他</option>
-      </select>
+    <div class="field"><div class="lbl">種類</div>
+      <select id="s-type"><option value="打ち合わせ">打ち合わせ</option><option value="営業・訪問">営業・訪問</option><option value="事務作業">事務作業</option><option value="その他">その他</option></select>
     </div>
-    <div class="field">
-      <div class="lbl">タイトル</div>
-      <input type="text" id="s-title" placeholder="例：〇〇会社との打ち合わせ">
-    </div>
+    <div class="field"><div class="lbl">タイトル</div><input type="text" id="s-title" placeholder="例：〇〇会社との打ち合わせ（空欄可）"></div>
     <div class="row2">
       <div class="field"><div class="lbl">日付</div><input type="date" id="s-date"></div>
       <div class="field"><div class="lbl">時間</div><input type="time" id="s-time"></div>
     </div>
-    <div class="field">
-      <div class="lbl">担当者</div>
-      <select id="s-staff">
-        <option value="">選択</option>
-        <option value="むすび">むすび</option>
-        <option value="RF">RF</option>
-        <option value="その他">その他</option>
-      </select>
+    <div class="field"><div class="lbl">担当者</div>
+      <select id="s-staff"><option value="">選択</option><option value="むすび">むすび</option><option value="RF">RF</option><option value="その他">その他</option></select>
     </div>
-    <div class="field">
-      <div class="lbl">メモ</div>
-      <textarea id="s-memo" placeholder="内容・場所など"></textarea>
-    </div>
+    <div class="field"><div class="lbl">メモ</div><textarea id="s-memo" placeholder="内容・場所など"></textarea></div>
     <div style="background:#f5f5f5;border-radius:8px;padding:10px;margin-top:8px">
       <div style="font-size:12px;color:#666;margin-bottom:6px">Googleカレンダーにも登録する</div>
       <div style="display:flex;gap:8px;align-items:center">
-        <input type="text" id="s-company" placeholder="担当会社名（例：便利屋むすび）" style="flex:1">
+        <input type="text" id="s-company" placeholder="担当会社名" style="flex:1">
         <a id="s-cal-btn" class="cal-btn" target="_blank" style="padding:7px 12px;font-size:12px" onclick="updateCalBtn()">登録</a>
       </div>
     </div>
@@ -147,51 +127,40 @@ textarea{resize:vertical;min-height:60px}
       <div class="app-sub" id="sync-status">読み込み中...</div>
     </div>
   </div>
-
   <div class="nav-links">
     <a href="index.html" class="nav-link">📋 案件管理</a>
     <a href="schedule.html" class="nav-link active">📅 スケジュール</a>
   </div>
-
   <div class="toast" id="main-toast"></div>
-
   <div class="month-nav">
     <button class="month-btn" onclick="changeMonth(-1)">◀</button>
     <div class="month-title" id="month-title"></div>
     <button class="month-btn" onclick="changeMonth(1)">▶</button>
   </div>
-
-  <button class="add-schedule-btn" onclick="openModal()">
-    ＋ 業務予定を追加
-  </button>
-
+  <button class="add-schedule-btn" onclick="openModal()">＋ 業務予定を追加</button>
   <div class="filter-bar">
     <button class="filter-btn active" onclick="setFilter('all',this)">すべて</button>
-    <button class="filter-btn" onclick="setFilter('case',this)">案件のみ</button>
-    <button class="filter-btn" onclick="setFilter('task',this)">業務予定のみ</button>
-    <button class="filter-btn" onclick="setFilter('estimate',this)">見積もり</button>
-    <button class="filter-btn" onclick="setFilter('work',this)">作業</button>
+    <button class="filter-btn" onclick="setFilter('case',this)">案件</button>
+    <button class="filter-btn" onclick="setFilter('worksched',this)">作業スケジュール</button>
+    <button class="filter-btn" onclick="setFilter('task',this)">業務予定</button>
     <button class="filter-btn" onclick="setFilter('musubi',this)">むすび</button>
     <button class="filter-btn" onclick="setFilter('rf',this)">RF</button>
   </div>
-
   <div class="legend">
-    <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>むすび</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#185FA5"></div>RF</div>
-    <div class="legend-item"><div class="legend-dot" style="background:#EF9F27"></div>その他</div>
     <div class="legend-item"><div class="legend-dot" style="background:#AB47BC"></div>見積もり</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#1D9E75"></div>むすび作業</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#185FA5"></div>RF作業</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#FF7043"></div>作業スケジュール</div>
     <div class="legend-item"><div class="legend-dot" style="background:#607D8B"></div>業務予定</div>
   </div>
-
   <div id="schedule-list"></div>
 </div>
 
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbxdhoLw2BRHiKuD8Pk0tHiH4WizFQD8xGnx1z5Ftrej5LUxXbR4qkjfQTbyAEfItwgt/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbwDnNIU_LH5AZmsLkeLXtA4xE76zT1ari42stPqWhhcN87337_fGbgRfbjv9c1XOMQ/exec';
 const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
 const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
-let cases=[];
-let schedules=[];
+let cases=[];let schedules=[];let tasks=[];
 let currentFilter='all';
 let currentYear=new Date().getFullYear();
 let currentMonth=new Date().getMonth();
@@ -201,50 +170,39 @@ const today=new Date();today.setHours(0,0,0,0);
 async function init(){
   document.getElementById('loading-overlay').classList.add('show');
   try{
-    const [r1,r2]=await Promise.all([
+    const [r1,r2,r3]=await Promise.all([
       fetch(GAS_URL+'?action=load_cases&t='+Date.now()),
-      fetch(GAS_URL+'?action=load_schedules&t='+Date.now())
+      fetch(GAS_URL+'?action=load_schedules&t='+Date.now()),
+      fetch(GAS_URL+'?action=load_tasks&t='+Date.now())
     ]);
-    const t1=await r1.text();const t2=await r2.text();
-    const lc=JSON.parse(t1);const ls=JSON.parse(t2);
+    const t1=await r1.text();const t2=await r2.text();const t3=await r3.text();
+    const lc=JSON.parse(t1);const ls=JSON.parse(t2);const lt=JSON.parse(t3);
     if(Array.isArray(lc)&&lc.length>0)cases=lc;
     if(Array.isArray(ls))schedules=ls;
+    if(Array.isArray(lt))tasks=lt;
     localStorage.setItem('musubi_gas',JSON.stringify(cases));
     localStorage.setItem('musubi_schedules',JSON.stringify(schedules));
+    localStorage.setItem('musubi_tasks',JSON.stringify(tasks));
     document.getElementById('sync-status').textContent='同期済み';
   }catch(e){
     document.getElementById('sync-status').textContent='ローカルデータ使用中';
-    const lc=localStorage.getItem('musubi_gas');
-    const ls=localStorage.getItem('musubi_schedules');
+    const lc=localStorage.getItem('musubi_gas');const ls=localStorage.getItem('musubi_schedules');const lt=localStorage.getItem('musubi_tasks');
     if(lc)try{cases=JSON.parse(lc);}catch(e){}
     if(ls)try{schedules=JSON.parse(ls);}catch(e){}
+    if(lt)try{tasks=JSON.parse(lt);}catch(e){}
   }
   document.getElementById('loading-overlay').classList.remove('show');
-  updateMonthTitle();
-  renderSchedule();
-}
-
-function updateMonthTitle(){
-  document.getElementById('month-title').textContent=`${currentYear}年 ${currentMonth+1}月`;
-}
-function changeMonth(delta){
-  currentMonth+=delta;
-  if(currentMonth>11){currentMonth=0;currentYear++;}
-  if(currentMonth<0){currentMonth=11;currentYear--;}
   updateMonthTitle();renderSchedule();
 }
-function setFilter(f,btn){
-  currentFilter=f;
-  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderSchedule();
-}
+
+function updateMonthTitle(){document.getElementById('month-title').textContent=`${currentYear}年 ${currentMonth+1}月`;}
+function changeMonth(delta){currentMonth+=delta;if(currentMonth>11){currentMonth=0;currentYear++;}if(currentMonth<0){currentMonth=11;currentYear--;}updateMonthTitle();renderSchedule();}
+function setFilter(f,btn){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderSchedule();}
 
 function openModal(id){
   editingId=id||null;
   if(id){
-    const s=schedules.find(x=>x.id===id);
-    if(!s)return;
+    const s=schedules.find(x=>x.id===id);if(!s)return;
     document.getElementById('modal-title-text').textContent='業務予定を編集';
     document.getElementById('s-type').value=s.type||'打ち合わせ';
     document.getElementById('s-title').value=s.title||'';
@@ -252,7 +210,7 @@ function openModal(id){
     document.getElementById('s-time').value=s.time||'';
     document.getElementById('s-staff').value=s.staff||'';
     document.getElementById('s-memo').value=s.memo||'';
-    document.getElementById('s-company').value=s.company||'便利屋むすび';
+    document.getElementById('s-company').value=s.company||'';
   }else{
     document.getElementById('modal-title-text').textContent='業務予定を追加';
     document.getElementById('s-type').value='打ち合わせ';
@@ -266,13 +224,8 @@ function openModal(id){
   updateCalBtn();
   document.getElementById('modal-overlay').classList.add('show');
 }
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('show');
-  editingId=null;
-}
-function closeModalIfOutside(e){
-  if(e.target===document.getElementById('modal-overlay'))closeModal();
-}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('show');editingId=null;}
+function closeModalIfOutside(e){if(e.target===document.getElementById('modal-overlay'))closeModal();}
 
 function updateCalBtn(){
   const date=document.getElementById('s-date').value;
@@ -281,80 +234,52 @@ function updateCalBtn(){
   const company=document.getElementById('s-company').value||'便利屋むすび';
   const memo=document.getElementById('s-memo').value;
   const btn=document.getElementById('s-cal-btn');
-  if(date){
-    btn.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company,name:title,type:'',address:'',workdate:date,starttime:time,crew:'',vehicle:'',partner:'',prep:memo}).toString();
-  }
+  if(date)btn.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company,name:title,type:'',address:'',workdate:date,starttime:time,crew:'',vehicle:'',partner:'',prep:memo}).toString();
 }
 
-function genSchedId(){return 'SC-'+Date.now();}
-
 function saveSchedule(){
-  const title=document.getElementById('s-title').value.trim()||document.getElementById('s-type').value;
   const date=document.getElementById('s-date').value;
   if(!date){showToast('modal-toast','日付は必須です','err');return;}
-  const s={
-    id:editingId||genSchedId(),
-    type:document.getElementById('s-type').value,
-    title,date,
-    time:document.getElementById('s-time').value,
-    staff:document.getElementById('s-staff').value,
-    memo:document.getElementById('s-memo').value,
-    company:document.getElementById('s-company').value
-  };
-  if(editingId){
-    const idx=schedules.findIndex(x=>x.id===editingId);
-    if(idx>=0)schedules[idx]=s;
-  }else{
-    schedules.push(s);
-  }
+  const title=document.getElementById('s-title').value.trim()||document.getElementById('s-type').value;
+  const s={id:editingId||('SC-'+Date.now()),type:document.getElementById('s-type').value,title,date,time:document.getElementById('s-time').value,staff:document.getElementById('s-staff').value,memo:document.getElementById('s-memo').value,company:document.getElementById('s-company').value};
+  if(editingId){const idx=schedules.findIndex(x=>x.id===editingId);if(idx>=0)schedules[idx]=s;}
+  else schedules.push(s);
   localStorage.setItem('musubi_schedules',JSON.stringify(schedules));
   fetch(GAS_URL+'?action=save_schedule&id='+encodeURIComponent(s.id)+'&data='+encodeURIComponent(JSON.stringify(s)),{mode:'no-cors'}).catch(()=>{});
-  closeModal();
-  renderSchedule();
+  closeModal();renderSchedule();
   showToast('main-toast','予定を保存しました','ok');
 }
 
 function deleteSchedule(id){
-  const s=schedules.find(x=>x.id===id);
-  if(!s)return;
+  const s=schedules.find(x=>x.id===id);if(!s)return;
   if(!confirm(`「${s.title}」を削除しますか？`))return;
   schedules=schedules.filter(x=>x.id!==id);
   localStorage.setItem('musubi_schedules',JSON.stringify(schedules));
   fetch(GAS_URL+'?action=delete_schedule&id='+encodeURIComponent(id),{mode:'no-cors'}).catch(()=>{});
-  renderSchedule();
-  showToast('main-toast','予定を削除しました','ok');
+  renderSchedule();showToast('main-toast','削除しました','ok');
 }
 
-function getStaffClass(staff){
-  if(!staff)return 'other';
-  if(staff==='むすび')return 'musubi';
-  if(staff==='RF')return 'rf';
-  return 'other';
-}
-function getStaffBadgeClass(staff){
-  if(!staff)return 'staff-other';
-  if(staff==='むすび')return 'staff-musubi';
-  if(staff==='RF')return 'staff-rf';
-  return 'staff-other';
-}
-function getTypeClass(type){
-  const m={'打ち合わせ':'type-meeting','営業・訪問':'type-sales','事務作業':'type-admin'};
-  return m[type]||'type-other';
-}
+function getStaffClass(staff){if(!staff)return 'other';if(staff==='むすび')return 'musubi';if(staff==='RF')return 'rf';return 'other';}
+function getStaffBadgeClass(staff){if(!staff)return 'staff-other';if(staff==='むすび')return 'staff-musubi';if(staff==='RF')return 'staff-rf';return 'staff-other';}
+function getTypeClass(type){const m={'打ち合わせ':'type-meeting','営業・訪問':'type-sales','事務作業':'type-admin'};return m[type]||'type-other';}
 
 function buildEvents(){
   const events=[];
-  // 案件イベント
+  // 案件イベント（見積もり日・作業日）
   cases.forEach(c=>{
     const estimateDate=c.stepData&&c.stepData[1]&&c.stepData[1].date?c.stepData[1].date:c.hope1||null;
     if(estimateDate)events.push({date:estimateDate,kind:'case',type:'estimate',case:c,time:c.stepData&&c.stepData[1]?c.stepData[1].time:c.hope1time||''});
     const workDate=c.stepData&&c.stepData[3]&&c.stepData[3].date?c.stepData[3].date:c.hope2||null;
     if(workDate)events.push({date:workDate,kind:'case',type:'work',case:c,time:c.stepData&&c.stepData[3]?c.stepData[3].start:c.hope2time||''});
+    // 作業スケジュール複数
+    (c.workScheds||[]).forEach(ws=>{
+      if(ws.date)events.push({date:ws.date,kind:'worksched',workSched:ws,case:c,time:ws.time||''});
+    });
   });
-  // 業務予定イベント
-  schedules.forEach(s=>{
-    events.push({date:s.date,kind:'task',schedule:s,time:s.time||''});
-  });
+  // 業務予定
+  schedules.forEach(s=>events.push({date:s.date,kind:'task',schedule:s,time:s.time||''}));
+  // 社内タスク（期限あり・未完了）
+  tasks.filter(t=>t.due&&!t.done).forEach(t=>events.push({date:t.due,kind:'internaltask',task:t,time:''}));
   return events;
 }
 
@@ -364,34 +289,27 @@ function renderSchedule(){
     const d=new Date(ev.date);
     if(d.getFullYear()!==currentYear||d.getMonth()!==currentMonth)return false;
     if(currentFilter==='case')return ev.kind==='case';
-    if(currentFilter==='task')return ev.kind==='task';
-    if(currentFilter==='estimate')return ev.kind==='case'&&ev.type==='estimate';
-    if(currentFilter==='work')return ev.kind==='case'&&ev.type==='work';
+    if(currentFilter==='worksched')return ev.kind==='worksched';
+    if(currentFilter==='task')return ev.kind==='task'||ev.kind==='internaltask';
     if(currentFilter==='musubi'){
       if(ev.kind==='case')return ev.case.staff==='むすび';
+      if(ev.kind==='worksched')return ev.workSched.staff==='むすび';
       if(ev.kind==='task')return ev.schedule.staff==='むすび';
+      return false;
     }
     if(currentFilter==='rf'){
       if(ev.kind==='case')return ev.case.staff==='RF';
+      if(ev.kind==='worksched')return ev.workSched.staff==='RF';
       if(ev.kind==='task')return ev.schedule.staff==='RF';
+      return false;
     }
     return true;
   });
-
-  // 時間でソート
-  filtered.sort((a,b)=>{
-    if(a.date!==b.date)return a.date<b.date?-1:1;
-    const at=a.time||'99:99';const bt=b.time||'99:99';
-    return at<bt?-1:at>bt?1:0;
-  });
-
-  const groups={};
-  filtered.forEach(ev=>{if(!groups[ev.date])groups[ev.date]=[];groups[ev.date].push(ev);});
+  filtered.sort((a,b)=>{if(a.date!==b.date)return a.date<b.date?-1:1;const at=a.time||'99:99';const bt=b.time||'99:99';return at<bt?-1:at>bt?1:0;});
+  const groups={};filtered.forEach(ev=>{if(!groups[ev.date])groups[ev.date]=[];groups[ev.date].push(ev);});
   const sortedDates=Object.keys(groups).sort();
-
   const el=document.getElementById('schedule-list');
   if(!sortedDates.length){el.innerHTML='<div class="empty">この月の予定はありません</div>';return;}
-
   const dayNames=['日','月','火','水','木','金','土'];
   el.innerHTML=sortedDates.map(dateStr=>{
     const d=new Date(dateStr);
@@ -400,7 +318,6 @@ function renderSchedule(){
     const isPast=d<today;
     const isSun=d.getDay()===0;const isSat=d.getDay()===6;
     const dayColor=isSun?'color:#c0392b':isSat?'color:#2980b9':'';
-
     const cardsHtml=groups[dateStr].map(ev=>{
       if(ev.kind==='case'){
         const c=ev.case;
@@ -425,7 +342,27 @@ function renderSchedule(){
             <span style="font-size:10px;color:#aaa;flex-shrink:0">${stepPct}%</span>
           </div>
         </div>`;
-      }else{
+      }else if(ev.kind==='worksched'){
+        const ws=ev.workSched;const c=ev.case;
+        const staffClass=getStaffClass(ws.staff);
+        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:ws.staff||'便利屋むすび',name:c.name,type:ws.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:ws.date||'',starttime:ws.time||'09:00',crew:'',vehicle:'',partner:'',prep:''}).toString();
+        return `<div class="schedule-card worksched">
+          <div class="card-top">
+            <div class="card-name">${c.name} 様</div>
+            <span class="card-type-badge type-worksched">${ws.content||'作業'}</span>
+          </div>
+          <div class="card-meta">
+            ${ws.time?`<span>🕐 ${ws.time}</span>`:''}
+            ${ws.staff?`<span class="staff-badge ${getStaffBadgeClass(ws.staff)}">${ws.staff}</span>`:''}
+            ${c.type?`<span style="font-size:11px">${c.type}</span>`:''}
+          </div>
+          ${c.address||c.customerAddress?`<div style="font-size:11px;color:#aaa;margin-top:3px">📍 ${c.sameAddress?c.customerAddress:c.address}</div>`:''}
+          <div style="margin-top:6px" onclick="event.stopPropagation()">
+            <a class="cal-btn" href="${calUrl}" target="_blank">📅 カレンダー登録</a>
+            <span style="font-size:11px;color:#aaa;margin-left:6px;cursor:pointer" onclick="goToCase('${c.id}')">→ 案件を開く</span>
+          </div>
+        </div>`;
+      }else if(ev.kind==='task'){
         const s=ev.schedule;
         const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'便利屋むすび',name:s.title,type:'',address:'',workdate:s.date,starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:s.memo||''}).toString();
         return `<div class="schedule-card task" onclick="openModal('${s.id}')">
@@ -443,9 +380,23 @@ function renderSchedule(){
             <button class="task-del-btn" onclick="deleteSchedule('${s.id}')">削除</button>
           </div>
         </div>`;
+      }else if(ev.kind==='internaltask'){
+        const t=ev.task;
+        const prioColor=t.priority==='高い'?'#c0392b':'#666';
+        return `<div class="schedule-card task" onclick="window.location.href='index.html'">
+          <div class="card-top">
+            <div class="card-name">🏢 ${t.title}</div>
+            <span class="card-type-badge type-admin">社内タスク</span>
+          </div>
+          <div class="card-meta">
+            <span style="color:${prioColor};font-size:11px">優先度：${t.priority}</span>
+            ${t.staff?`<span class="staff-badge ${getStaffBadgeClass(t.staff)}">${t.staff}</span>`:''}
+            ${t.memo?`<span style="font-size:11px;color:#999">${t.memo.length>15?t.memo.slice(0,15)+'…':t.memo}</span>`:''}
+          </div>
+        </div>`;
       }
+      return '';
     }).join('');
-
     return `<div class="day-group">
       <div class="day-header ${isToday?'today':isPast?'past':''}">
         <span style="${dayColor}">${currentMonth+1}/${d.getDate()}（${dayName}）</span>
@@ -458,13 +409,7 @@ function renderSchedule(){
 }
 
 function goToCase(id){window.location.href='index.html?case='+encodeURIComponent(id);}
-
-function showToast(id,msg,type){
-  const t=document.getElementById(id);if(!t)return;
-  t.textContent=msg;t.className='toast show '+type;
-  setTimeout(()=>t.className='toast',4000);
-}
-
+function showToast(id,msg,type){const t=document.getElementById(id);if(!t)return;t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',4000);}
 init();
 </script>
 </body>
