@@ -259,9 +259,9 @@ function openModal(id){
     document.getElementById('s-title').value='';
     document.getElementById('s-date').value=new Date().toISOString().split('T')[0];
     document.getElementById('s-time').value='';
-    document.getElementById('s-staff').value='むすび';
+    document.getElementById('s-staff').value='';
     document.getElementById('s-memo').value='';
-    document.getElementById('s-company').value='便利屋むすび';
+    document.getElementById('s-company').value='';
   }
   updateCalBtn();
   document.getElementById('modal-overlay').classList.add('show');
@@ -289,9 +289,9 @@ function updateCalBtn(){
 function genSchedId(){return 'SC-'+Date.now();}
 
 function saveSchedule(){
-  const title=document.getElementById('s-title').value.trim();
+  const title=document.getElementById('s-title').value.trim()||document.getElementById('s-type').value;
   const date=document.getElementById('s-date').value;
-  if(!title||!date){showToast('modal-toast','タイトルと日付は必須です','err');return;}
+  if(!date){showToast('modal-toast','日付は必須です','err');return;}
   const s={
     id:editingId||genSchedId(),
     type:document.getElementById('s-type').value,
