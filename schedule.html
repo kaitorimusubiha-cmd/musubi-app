@@ -231,7 +231,7 @@ function updateCalBtn(){
   const date=document.getElementById('s-date').value;
   const time=document.getElementById('s-time').value||'09:00';
   const title=document.getElementById('s-title').value||document.getElementById('s-type').value;
-  const company=document.getElementById('s-company').value||'便利屋むすび';
+  const company=document.getElementById('s-company').value||'';
   const memo=document.getElementById('s-memo').value;
   const btn=document.getElementById('s-cal-btn');
   if(date)btn.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company,name:title,type:'',address:'',workdate:date,starttime:time,crew:'',vehicle:'',partner:'',prep:memo}).toString();
@@ -345,7 +345,7 @@ function renderSchedule(){
       }else if(ev.kind==='worksched'){
         const ws=ev.workSched;const c=ev.case;
         const staffClass=getStaffClass(ws.staff);
-        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:ws.staff||'便利屋むすび',name:c.name,type:ws.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:ws.date||'',starttime:ws.time||'09:00',crew:'',vehicle:'',partner:'',prep:''}).toString();
+        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:ws.staff||'',name:c.name,type:ws.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:ws.date||'',starttime:ws.time||'09:00',crew:'',vehicle:'',partner:'',prep:''}).toString();
         return `<div class="schedule-card worksched">
           <div class="card-top">
             <div class="card-name">${c.name} 様</div>
@@ -364,7 +364,7 @@ function renderSchedule(){
         </div>`;
       }else if(ev.kind==='task'){
         const s=ev.schedule;
-        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'便利屋むすび',name:s.title,type:'',address:'',workdate:s.date,starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:s.memo||''}).toString();
+        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'',name:s.title,type:'',address:'',workdate:s.date,starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:s.memo||''}).toString();
         return `<div class="schedule-card task" onclick="openModal('${s.id}')">
           <div class="card-top">
             <div class="card-name">📌 ${s.title}</div>

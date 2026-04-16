@@ -681,7 +681,7 @@ function renderWorkScheds(){
   const el=document.getElementById('work-sched-list');
   if(!scheds.length){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0">まだスケジュールがありません</div>';return;}
   el.innerHTML=scheds.map((s,i)=>{
-    const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'便利屋むすび',name:c.name,type:s.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:s.date||'',starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:''}).toString();
+    const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'',name:c.name,type:s.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:s.date||'',starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:''}).toString();
     return `<div class="work-sched-item">
       <button class="work-sched-del" onclick="deleteWorkSched(${i})">削除</button>
       <div class="row3" style="margin-bottom:6px">
@@ -758,8 +758,8 @@ function deleteCase(){const c=cases.find(x=>x.id===currentId);if(!c)return;if(!c
 function genId(){const d=new Date();return 'MU-'+String(d.getFullYear()).slice(-2)+String(d.getMonth()+1).padStart(2,'0')+String(caseCounter).padStart(3,'0');}
 function updateCalUrls(){
   const c=cases.find(x=>x.id===currentId);if(!c)return;
-  const compE=(document.getElementById('company-estimate').value||'').trim()||'便利屋むすび';
-  const compW=(document.getElementById('company-work').value||'').trim()||'便利屋むすび';
+  const compE=(document.getElementById('company-estimate').value||'').trim()||'';
+  const compW=(document.getElementById('company-work').value||'').trim()||'';
   const ec=document.getElementById('btn-estimate-cal');const wc=document.getElementById('btn-work-cal');
   if(ec&&!c.estimateCalSynced){const d=c.stepData&&c.stepData[1]||{};ec.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compE,name:c.name,type:'見積もり',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.time||'10:00',crew:'',vehicle:'',partner:'',prep:'見積もり訪問'}).toString();}
   if(wc&&!c.calendarSynced){const d=c.stepData&&c.stepData[3]||{};wc.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compW,name:c.name,type:c.type||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.start||'09:00',crew:d.crew||'',vehicle:d.vehicle||'',partner:d.partner||'',prep:d.prep||''}).toString();}
