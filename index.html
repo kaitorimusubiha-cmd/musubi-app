@@ -540,6 +540,13 @@ async function loadFromSheet(){
     if(lt)try{tasks=JSON.parse(lt);}catch(e){}
   }
   hideLoading();renderList();renderStats();renderTasks();
+  // URLパラメータから案件IDを読み取って自動で詳細を開く
+  const urlParams=new URLSearchParams(window.location.search);
+  const caseParam=urlParams.get('case');
+  if(caseParam){
+    const found=cases.find(x=>x.id===caseParam);
+    if(found)setTimeout(()=>openDetail(caseParam),100);
+  }
 }
 
 function saveToSheet(c){

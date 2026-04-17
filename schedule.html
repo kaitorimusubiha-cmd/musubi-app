@@ -101,7 +101,11 @@ textarea{resize:vertical;min-height:60px}
     <div class="field"><div class="lbl">タイトル</div><input type="text" id="s-title" placeholder="例：〇〇会社との打ち合わせ（空欄可）"></div>
     <div class="row2">
       <div class="field"><div class="lbl">日付</div><input type="date" id="s-date"></div>
-      <div class="field"><div class="lbl">時間</div><input type="time" id="s-time"></div>
+      <div class="field"><div class="lbl">開始時間</div><input type="time" id="s-time"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><div class="lbl">終了時間</div><input type="time" id="s-end-time"></div>
+      <div class="field"></div>
     </div>
     <div class="field"><div class="lbl">担当者</div>
       <select id="s-staff"><option value="">選択</option><option value="むすび">むすび</option><option value="RF">RF</option><option value="その他">その他</option></select>
@@ -208,6 +212,7 @@ function openModal(id){
     document.getElementById('s-title').value=s.title||'';
     document.getElementById('s-date').value=s.date||'';
     document.getElementById('s-time').value=s.time||'';
+    document.getElementById('s-end-time').value=s.endtime||'';
     document.getElementById('s-staff').value=s.staff||'';
     document.getElementById('s-memo').value=s.memo||'';
     document.getElementById('s-company').value=s.company||'';
@@ -217,6 +222,7 @@ function openModal(id){
     document.getElementById('s-title').value='';
     document.getElementById('s-date').value=new Date().toISOString().split('T')[0];
     document.getElementById('s-time').value='';
+    document.getElementById('s-end-time').value='';
     document.getElementById('s-staff').value='';
     document.getElementById('s-memo').value='';
     document.getElementById('s-company').value='';
@@ -234,14 +240,15 @@ function updateCalBtn(){
   const company=document.getElementById('s-company').value||'';
   const memo=document.getElementById('s-memo').value;
   const btn=document.getElementById('s-cal-btn');
-  if(date)btn.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company,name:title,type:'',address:'',workdate:date,starttime:time,crew:'',vehicle:'',partner:'',prep:memo}).toString();
+  const endtime=document.getElementById('s-end-time').value||'';
+  if(date)btn.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company,name:title,type:'',address:'',workdate:date,starttime:time,endtime:endtime,crew:'',vehicle:'',partner:'',prep:memo}).toString();
 }
 
 function saveSchedule(){
   const date=document.getElementById('s-date').value;
   if(!date){showToast('modal-toast','日付は必須です','err');return;}
   const title=document.getElementById('s-title').value.trim()||document.getElementById('s-type').value;
-  const s={id:editingId||('SC-'+Date.now()),type:document.getElementById('s-type').value,title,date,time:document.getElementById('s-time').value,staff:document.getElementById('s-staff').value,memo:document.getElementById('s-memo').value,company:document.getElementById('s-company').value};
+  const s={id:editingId||('SC-'+Date.now()),type:document.getElementById('s-type').value,title,date,time:document.getElementById('s-time').value,endtime:document.getElementById('s-end-time').value,staff:document.getElementById('s-staff').value,memo:document.getElementById('s-memo').value,company:document.getElementById('s-company').value};
   if(editingId){const idx=schedules.findIndex(x=>x.id===editingId);if(idx>=0)schedules[idx]=s;}
   else schedules.push(s);
   localStorage.setItem('musubi_schedules',JSON.stringify(schedules));
@@ -364,7 +371,7 @@ function renderSchedule(){
         </div>`;
       }else if(ev.kind==='task'){
         const s=ev.schedule;
-        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'',name:s.title,type:'',address:'',workdate:s.date,starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:s.memo||''}).toString();
+        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'',name:s.title,type:'',address:'',workdate:s.date,starttime:s.time||'09:00',endtime:s.endtime||'',crew:'',vehicle:'',partner:'',prep:s.memo||''}).toString();
         return `<div class="schedule-card task" onclick="openModal('${s.id}')">
           <div class="card-top">
             <div class="card-name">📌 ${s.title}</div>
