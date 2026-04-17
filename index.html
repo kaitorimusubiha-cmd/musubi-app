@@ -340,7 +340,10 @@ textarea{resize:vertical;min-height:60px}
           <div class="field"><div class="lbl">見積もり日</div><input type="date" id="e-date"></div>
         </div>
         <div class="row2">
-          <div class="field"><div class="lbl">見積もり時間</div><input type="time" id="e-time" value="10:00"></div>
+          <div class="field"><div class="lbl">開始時間</div><input type="time" id="e-time" value="10:00"></div>
+          <div class="field"><div class="lbl">終了時間</div><input type="time" id="e-end-time"></div>
+        </div>
+        <div class="row2">
           <div class="field"><div class="lbl">見積もり金額（円）</div><input type="number" id="e-amount" placeholder="30000"></div>
         </div>
         <div class="field"><div class="lbl">内訳</div><input type="text" id="e-breakdown" placeholder="回収費・処分費など"></div>
@@ -381,6 +384,7 @@ textarea{resize:vertical;min-height:60px}
         <div class="row2">
           <div class="field"><div class="lbl">作業日 <span class="req">必須</span></div><input type="date" id="w-date"></div>
           <div class="field"><div class="lbl">開始時間</div><input type="time" id="w-start" value="09:00"></div>
+          <div class="field"><div class="lbl">終了時間</div><input type="time" id="w-end-time"></div>
         </div>
         <div class="row2">
           <div class="field"><div class="lbl">作業員（人数）</div><input type="number" id="w-crew" placeholder="2"></div>
@@ -506,7 +510,7 @@ textarea{resize:vertical;min-height:60px}
 </div>
 
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbwDnNIU_LH5AZmsLkeLXtA4xE76zT1ari42stPqWhhcN87337_fGbgRfbjv9c1XOMQ/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbyB7dlklmWgHy_HxyHiwXr4epDkgSzOCM3jABQtUrjxWqRZ75M0vWR5pU8f0W4fSOVn/exec';
 const STEPS=['問い合わせ','見積もり','見積確定','作業日確定','作業準備','作業','完了報告','後始末','アフター'];
 const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
 const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
@@ -681,12 +685,15 @@ function renderWorkScheds(){
   const el=document.getElementById('work-sched-list');
   if(!scheds.length){el.innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0">まだスケジュールがありません</div>';return;}
   el.innerHTML=scheds.map((s,i)=>{
-    const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'',name:c.name,type:s.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:s.date||'',starttime:s.time||'09:00',crew:'',vehicle:'',partner:'',prep:''}).toString();
+    const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:s.company||'',name:c.name,type:s.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:s.date||'',starttime:s.time||'09:00',endtime:s.endtime||'',crew:'',vehicle:'',partner:'',prep:''}).toString();
     return `<div class="work-sched-item">
       <button class="work-sched-del" onclick="deleteWorkSched(${i})">削除</button>
       <div class="row3" style="margin-bottom:6px">
         <div class="field"><div class="lbl">日付</div><input type="date" value="${s.date||''}" onchange="updateWorkSched(${i},'date',this.value)"></div>
-        <div class="field"><div class="lbl">時間</div><input type="time" value="${s.time||''}" onchange="updateWorkSched(${i},'time',this.value)"></div>
+        <div class="field"><div class="lbl">開始</div><input type="time" value="${s.time||''}" onchange="updateWorkSched(${i},'time',this.value)"></div>
+        <div class="field"><div class="lbl">終了</div><input type="time" value="${s.endtime||''}" onchange="updateWorkSched(${i},'endtime',this.value)"></div>
+        </div>
+      <div class="row2" style="margin-bottom:6px">
         <div class="field"><div class="lbl">担当</div>
           <select onchange="updateWorkSched(${i},'staff',this.value)">
             <option value="" ${!s.staff?'selected':''}>選択</option>
@@ -761,8 +768,8 @@ function updateCalUrls(){
   const compE=(document.getElementById('company-estimate').value||'').trim()||'';
   const compW=(document.getElementById('company-work').value||'').trim()||'';
   const ec=document.getElementById('btn-estimate-cal');const wc=document.getElementById('btn-work-cal');
-  if(ec&&!c.estimateCalSynced){const d=c.stepData&&c.stepData[1]||{};ec.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compE,name:c.name,type:'見積もり',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.time||'10:00',crew:'',vehicle:'',partner:'',prep:'見積もり訪問'}).toString();}
-  if(wc&&!c.calendarSynced){const d=c.stepData&&c.stepData[3]||{};wc.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compW,name:c.name,type:c.type||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.start||'09:00',crew:d.crew||'',vehicle:d.vehicle||'',partner:d.partner||'',prep:d.prep||''}).toString();}
+  if(ec&&!c.estimateCalSynced){const d=c.stepData&&c.stepData[1]||{};ec.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compE,name:c.name,type:'見積もり',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.time||'10:00',endtime:d.endtime||'',crew:'',vehicle:'',partner:'',prep:'見積もり訪問'}).toString();}
+  if(wc&&!c.calendarSynced){const d=c.stepData&&c.stepData[3]||{};wc.href=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:compW,name:c.name,type:c.type||'',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:d.date||'',starttime:d.start||'09:00',endtime:d.endtime||'',crew:d.crew||'',vehicle:d.vehicle||'',partner:d.partner||'',prep:d.prep||''}).toString();}
 }
 function confirmDone(type){
   const c=cases.find(x=>x.id===currentId);if(!c)return;
@@ -845,10 +852,10 @@ function openDetail(id){
 }
 function loadStepData(c){
   const d=c.stepData||{};
-  if(d[1]){document.getElementById('e-method').value=d[1].method||'';document.getElementById('e-date').value=d[1].date||c.hope1||'';document.getElementById('e-time').value=d[1].time||c.hope1time||'10:00';document.getElementById('e-amount').value=d[1].amount||'';document.getElementById('e-breakdown').value=d[1].breakdown||'';document.getElementById('e-memo').value=d[1].memo||'';}
+  if(d[1]){document.getElementById('e-method').value=d[1].method||'';document.getElementById('e-date').value=d[1].date||c.hope1||'';document.getElementById('e-time').value=d[1].time||c.hope1time||'10:00';document.getElementById('e-end-time').value=d[1].endtime||'';document.getElementById('e-amount').value=d[1].amount||'';document.getElementById('e-breakdown').value=d[1].breakdown||'';document.getElementById('e-memo').value=d[1].memo||'';}
   else{document.getElementById('e-date').value=c.hope1||'';document.getElementById('e-time').value=c.hope1time||'10:00';}
   if(d[2]){['c-amount','c-date','c-contact','c-notes'].forEach(id=>{const k=id.replace('c-','');if(d[2][k])document.getElementById(id).value=d[2][k];});}
-  if(d[3]){document.getElementById('w-date').value=d[3].date||'';document.getElementById('w-start').value=d[3].start||'09:00';document.getElementById('w-crew').value=d[3].crew||'';document.getElementById('w-vehicle').value=d[3].vehicle||'';document.getElementById('w-prep').value=d[3].prep||'';document.getElementById('w-partner').value=d[3].partner||'';}
+  if(d[3]){document.getElementById('w-date').value=d[3].date||'';document.getElementById('w-start').value=d[3].start||'09:00';document.getElementById('w-end-time').value=d[3].endtime||'';document.getElementById('w-crew').value=d[3].crew||'';document.getElementById('w-vehicle').value=d[3].vehicle||'';document.getElementById('w-prep').value=d[3].prep||'';document.getElementById('w-partner').value=d[3].partner||'';}
   else{document.getElementById('w-date').value=c.hope2||'';document.getElementById('w-start').value=c.hope2time||'09:00';}
   renderWorkScheds();
   if(d[5]){['wk-start','wk-end','wk-detail','wk-extra'].forEach(id=>{const k=id.replace('wk-','');if(d[5][k])document.getElementById(id).value=d[5][k];});}
@@ -864,9 +871,9 @@ function showStep(i){
 function saveStep(stepIdx){
   const c=cases.find(x=>x.id===currentId);if(!c)return;if(!c.stepData)c.stepData={};
   let data={};
-  if(stepIdx===1){data={method:document.getElementById('e-method').value,date:document.getElementById('e-date').value,time:document.getElementById('e-time').value,amount:document.getElementById('e-amount').value,breakdown:document.getElementById('e-breakdown').value,memo:document.getElementById('e-memo').value};c.stepData[1]=data;updateCalUrls();}
+  if(stepIdx===1){data={method:document.getElementById('e-method').value,date:document.getElementById('e-date').value,time:document.getElementById('e-time').value,endtime:document.getElementById('e-end-time').value,amount:document.getElementById('e-amount').value,breakdown:document.getElementById('e-breakdown').value,memo:document.getElementById('e-memo').value};c.stepData[1]=data;updateCalUrls();}
   if(stepIdx===2){['c-amount','c-date','c-contact','c-notes'].forEach(id=>{data[id.replace('c-','')]=document.getElementById(id).value;});}
-  if(stepIdx===3){data={date:document.getElementById('w-date').value,start:document.getElementById('w-start').value,crew:document.getElementById('w-crew').value,vehicle:document.getElementById('w-vehicle').value,prep:document.getElementById('w-prep').value,partner:document.getElementById('w-partner').value};c.stepData[3]=data;updateCalUrls();}
+  if(stepIdx===3){data={date:document.getElementById('w-date').value,start:document.getElementById('w-start').value,endtime:document.getElementById('w-end-time').value,crew:document.getElementById('w-crew').value,vehicle:document.getElementById('w-vehicle').value,prep:document.getElementById('w-prep').value,partner:document.getElementById('w-partner').value};c.stepData[3]=data;updateCalUrls();}
   if(stepIdx===4){data.checks=[...document.querySelectorAll('.prep-check:checked')].length;data.memo=document.getElementById('prep-memo').value;}
   if(stepIdx===5){['wk-start','wk-end','wk-detail','wk-extra'].forEach(id=>{data[id.replace('wk-','')]=document.getElementById(id).value;});}
   if(stepIdx===6){data={date:document.getElementById('done-date').value,amount:document.getElementById('done-amount').value,pay:document.getElementById('done-pay').value,paydate:document.getElementById('done-paydate').value,memo:document.getElementById('done-memo').value};c.stepData[6]=data;}

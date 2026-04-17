@@ -157,7 +157,7 @@ textarea{resize:vertical;min-height:60px}
 </div>
 
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbwDnNIU_LH5AZmsLkeLXtA4xE76zT1ari42stPqWhhcN87337_fGbgRfbjv9c1XOMQ/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbyB7dlklmWgHy_HxyHiwXr4epDkgSzOCM3jABQtUrjxWqRZ75M0vWR5pU8f0W4fSOVn/exec';
 const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
 const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
 let cases=[];let schedules=[];let tasks=[];
@@ -345,7 +345,7 @@ function renderSchedule(){
       }else if(ev.kind==='worksched'){
         const ws=ev.workSched;const c=ev.case;
         const staffClass=getStaffClass(ws.staff);
-        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:ws.staff||'',name:c.name,type:ws.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:ws.date||'',starttime:ws.time||'09:00',crew:'',vehicle:'',partner:'',prep:''}).toString();
+        const calUrl=GAS_URL+'?'+new URLSearchParams({action:'list_calendars',company:ws.staff||'',name:c.name,type:ws.content||'作業',address:c.sameAddress?(c.customerAddress||''):(c.address||''),workdate:ws.date||'',starttime:ws.time||'09:00',endtime:ws.endtime||'',crew:'',vehicle:'',partner:'',prep:''}).toString();
         return `<div class="schedule-card worksched">
           <div class="card-top">
             <div class="card-name">${c.name} 様</div>
