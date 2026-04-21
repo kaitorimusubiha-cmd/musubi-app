@@ -350,6 +350,24 @@ textarea{resize:vertical;min-height:60px}
         <div class="field"><div class="lbl">見積もりメモ</div><textarea id="e-memo" placeholder="追加作業の可能性あり など"></textarea></div>
       </div>
       <button class="btn-primary" onclick="saveStep(1)">見積もり情報を保存</button>
+
+      <!-- 見積書作成 -->
+      <div class="section" style="margin-top:1rem">
+        <div class="sec-title">見積書を作成する</div>
+        <div class="field"><div class="lbl">No.</div><input type="text" id="est-no" placeholder="例：2026-001"></div>
+        <div class="field"><div class="lbl">件名</div><input type="text" id="est-subject" placeholder="例：不用品回収・片付け作業一式"></div>
+        <div class="field"><div class="lbl">納期</div><input type="text" id="est-delivery" placeholder="例：2026年4月25日"></div>
+        <div style="font-size:12px;color:#666;margin-bottom:8px;margin-top:4px">明細（品名・数量・単価・税率）</div>
+        <div id="est-items-list"></div>
+        <button onclick="addEstItem()" style="width:100%;padding:7px;border-radius:8px;border:1.5px dashed #1D9E75;background:#fff;color:#0F6E56;font-size:13px;cursor:pointer;margin-bottom:8px">＋ 明細を追加</button>
+        <div class="field"><div class="lbl">備考</div><textarea id="est-remarks" style="min-height:60px" placeholder="備考欄（空欄の場合はデフォルト文が入ります）"></textarea></div>
+        <button id="btn-create-estimate" class="btn-primary" onclick="createEstimate()" style="background:#7B1FA2">📄 見積書をスプレッドシートで作成する</button>
+        <div id="est-result" style="margin-top:8px;display:none">
+          <a id="est-link" href="#" target="_blank" style="display:block;padding:10px;border-radius:8px;background:#E1F5EE;color:#085041;text-align:center;text-decoration:none;font-size:13px;font-weight:500">✓ 見積書が作成されました → 開く</a>
+        </div>
+        <div class="toast" id="toast-estimate"></div>
+      </div>
+
       <div class="company-box">
         <div class="company-box-title">カレンダーに登録する担当会社名を入力してください</div>
         <div class="company-row">
@@ -510,7 +528,7 @@ textarea{resize:vertical;min-height:60px}
 </div>
 
 <script>
-const GAS_URL='https://script.google.com/macros/s/AKfycbyB7dlklmWgHy_HxyHiwXr4epDkgSzOCM3jABQtUrjxWqRZ75M0vWR5pU8f0W4fSOVn/exec';
+const GAS_URL='https://script.google.com/macros/s/AKfycbxwHA_X2t_9Tuhj37rIbYzhB3Q6p-XCzuEc23gmCntVZfAKpgO7lu5Ra-DEYJzelWyL/exec';
 const STEPS=['問い合わせ','見積もり','見積確定','作業日確定','作業準備','作業','完了報告','後始末','アフター'];
 const STATUS=['受付済','見積中','見積確定','作業日確定','準備中','作業中','完了報告','後始末中','完了'];
 const BADGE_CLASS=['s0','s1','s2','s3','s2','s1','s4','s0','s5'];
@@ -850,6 +868,7 @@ function openDetail(id){
   if(c.calendarSynced){wc.innerHTML='✓ 作業日登録済み';wc.classList.add('done');wc.removeAttribute('href');document.getElementById('btn-work-cal-confirm').style.display='none';}
   else{wc.innerHTML='登録';wc.classList.remove('done');document.getElementById('btn-work-cal-confirm').style.display='none';}
   document.getElementById('btn-koseitei').href='koseitei.html?id='+encodeURIComponent(id);
+  estItems=[{name:'作業費',qty:1,unit:'式',price:0,tax:0.1},{name:'車両',qty:1,unit:'式',price:0,tax:0.1},{name:'諸経費',qty:1,unit:'式',price:0,tax:0.1}];
   document.getElementById('company-estimate').value='';document.getElementById('company-work').value='';
   document.getElementById('toast-sheet').className='toast';
   loadStepData(c);showStep(c.stepIndex);setTimeout(updateCalUrls,100);
@@ -874,6 +893,7 @@ function showStep(i){
   document.getElementById('sp-'+i).classList.add('active');
   document.querySelectorAll('.step-btn').forEach((b,j)=>b.classList.toggle('active',j===i));
   if(i===3)renderWorkScheds();
+  if(i===1)setTimeout(initEstimate,100);
 }
 function saveStep(stepIdx){
   const c=cases.find(x=>x.id===currentId);if(!c)return;if(!c.stepData)c.stepData={};
@@ -893,6 +913,94 @@ function saveStep(stepIdx){
   document.getElementById('step-nav').innerHTML=STEPS.map((s,i)=>`<button class="step-btn ${i===stepIdx?'active':''} ${i<stepIdx?'done':''}" onclick="showStep(${i})">${i<stepIdx?'✓ ':''} ${s}</button>`).join('');
   showToast('toast-'+stepIdx,'保存しました','ok');
 }
+// ===== 見積書 =====
+let estItems=[{name:'作業費',qty:1,unit:'式',price:0,tax:0.1},{name:'車両',qty:1,unit:'式',price:0,tax:0.1},{name:'諸経費',qty:1,unit:'式',price:0,tax:0.1}];
+
+function renderEstItems(){
+  const el=document.getElementById('est-items-list');
+  if(!el)return;
+  el.innerHTML=estItems.map((item,i)=>`
+    <div style="background:#f9f9f9;border:0.5px solid #e0e0e0;border-radius:8px;padding:8px;margin-bottom:6px;position:relative">
+      <button onclick="removeEstItem(${i})" style="position:absolute;top:6px;right:6px;padding:1px 7px;border-radius:4px;border:0.5px solid #F09595;background:#fff;color:#A32D2D;font-size:11px;cursor:pointer">削除</button>
+      <div class="row2" style="margin-bottom:4px">
+        <div class="field"><div class="lbl">品名</div><input type="text" value="${item.name}" onchange="estItems[${i}].name=this.value"></div>
+        <div class="field"><div class="lbl">単位</div><input type="text" value="${item.unit}" onchange="estItems[${i}].unit=this.value" style=""></div>
+      </div>
+      <div class="row3">
+        <div class="field"><div class="lbl">数量</div><input type="number" value="${item.qty}" onchange="estItems[${i}].qty=parseFloat(this.value)||0"></div>
+        <div class="field"><div class="lbl">単価（円）</div><input type="number" value="${item.price}" onchange="estItems[${i}].price=parseFloat(this.value)||0"></div>
+        <div class="field"><div class="lbl">税率</div>
+          <select onchange="estItems[${i}].tax=parseFloat(this.value)">
+            <option value="0.1" ${item.tax===0.1?'selected':''}>10%</option>
+            <option value="0.08" ${item.tax===0.08?'selected':''}>8%（軽減）</option>
+            <option value="0">0%</option>
+          </select>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function addEstItem(){
+  estItems.push({name:'',qty:1,unit:'式',price:0,tax:0.1});
+  renderEstItems();
+}
+
+function removeEstItem(i){
+  estItems.splice(i,1);
+  renderEstItems();
+}
+
+function initEstimate(){
+  const c=cases.find(x=>x.id===currentId);if(!c)return;
+  const d=c.stepData&&c.stepData[1]||{};
+  // No.を自動生成（案件IDベース）
+  document.getElementById('est-no').value=c.id.replace('MU-','');
+  document.getElementById('est-subject').value=c.type||'';
+  document.getElementById('est-delivery').value=d.date||'';
+  // 金額が入っていれば作業費に反映
+  if(d.amount&&estItems[0]){estItems[0].price=parseFloat(d.amount)||0;}
+  renderEstItems();
+  document.getElementById('est-result').style.display='none';
+}
+
+async function createEstimate(){
+  const c=cases.find(x=>x.id===currentId);if(!c)return;
+  const d=c.stepData&&c.stepData[1]||{};
+  const no=document.getElementById('est-no').value.trim();
+  const subject=document.getElementById('est-subject').value.trim();
+  const delivery=document.getElementById('est-delivery').value.trim();
+  const remarks=document.getElementById('est-remarks').value.trim();
+  if(!no){showToast('toast-estimate','No.を入力してください','err');return;}
+  const btn=document.getElementById('btn-create-estimate');
+  btn.disabled=true;btn.textContent='作成中...';
+  try{
+    const url=GAS_URL+'?'+new URLSearchParams({
+      action:'create_estimate',
+      clientName:c.name,
+      estimateNo:no,
+      estimateDate:d.date||new Date().toISOString().split('T')[0],
+      subject:subject||c.type||'',
+      delivery,
+      remarks,
+      items:JSON.stringify(estItems.map(item=>[item.name,'','','',item.qty,item.unit,item.price,item.tax]))
+    }).toString();
+    const res=await fetch(url);
+    const result=await res.json();
+    if(result.status==='ok'){
+      document.getElementById('est-link').href=result.url;
+      document.getElementById('est-link').textContent='✓ 「'+result.name+'」が作成されました → 開く';
+      document.getElementById('est-result').style.display='block';
+      showToast('toast-estimate','見積書を作成しました！','ok');
+    }else{
+      showToast('toast-estimate','作成に失敗しました','err');
+    }
+  }catch(e){
+    showToast('toast-estimate','エラーが発生しました：'+e.message,'err');
+  }finally{
+    btn.disabled=false;btn.textContent='📄 見積書をスプレッドシートで作成する';
+  }
+}
+
 function showToast(id,msg,type){const t=document.getElementById(id);if(!t)return;t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',4000);}
 loadFromSheet();initNew();
 </script>
